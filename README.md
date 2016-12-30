@@ -85,7 +85,9 @@ or:
      
 ##Test Sql Parse
 
-python -m ql.parse.utest "select * from my_index;":
+Console:
+
+    python -m ql.parse.utest "select * from my_index;"
 
 
     (TOK_QUERY
