@@ -1,8 +1,9 @@
 #Features
 Familiar SQL syntax:
 -----------------
-select * from my_tables;<br>
-create my_table(<br>
->>id integer,<br>
->>name string<br>
-);<br>
+::
+select * from my_tables;
+create my_table(
+>>id integer,
+>>name string
+);
