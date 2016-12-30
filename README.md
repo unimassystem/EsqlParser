@@ -67,7 +67,45 @@ example:
 
     select * from my_table.my_index group by code;
     select * from my_table.my_index group by range(age,{to=10},{from=10,to=20},{from=20});
- 
+    select * from my_table.my_index group by date_histogram(timestamp,{interval=12h});
+
+
+#Getting Started
+
+Requirement python3.5,Install Yacc/Lex first:
+
+     pip install ply
+     
+or:
+     
+     wget http://www.dabeaz.com/ply/ply-3.9.tar.gz
+     tar ply-3.9.tar.gz
+     cd ply-3.9
+     python setup.py install
+     
+##Test Sql Parse
+
+python -m ql.parse.utest "select * from my_index;":
+
+
+    (TOK_QUERY
+	    (TOK_SELECT
+		    (TOK_SELEXPR
+			    (TOK_VALUE
+			    	*
+			    )
+		    )
+	    )
+	    (TOK_FROM
+		    (TOK_TABLE_NAME
+		    	(TOK_VALUE
+			   	my_index
+			    )
+		    )
+	    )
+    )
+
+
 
 
 
