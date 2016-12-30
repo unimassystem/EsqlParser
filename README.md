@@ -63,7 +63,8 @@ example:
 ##Aggregations
     SELECT Metrices_FUN FROM [my_index]<.my_table> [WHERE EXPRESSION]  [GROUP BY Buckets]
 
- example:
+example:
+
     select * from my_table.my_index group by code;
     select * from my_table.my_index group by range(age,{to=10},{from=10,to=20},{from=20});
  
