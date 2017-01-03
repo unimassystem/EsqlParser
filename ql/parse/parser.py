@@ -19,7 +19,7 @@ TOKEN = Enum('TOKEN', ['TOK_IDENTIFIER','TOK_VALUE','TOK_DOT','TOK_CORE_TYPE','T
                            'TOK_KEY_VALUE',
                            'TOK_COMPARE','TOK_REVERSED','TOK_COMPLEX',
                            'TOK_SELECT','TOK_FROM','TOK_WHERE','TOK_LIMIT','TOK_ORDERBY','TOK_GROUPBY','TOK_SELEXPR','TOK_SORT',
-                           'TOK_INSERT_INTO','TOK_INSERT_ROW','TOK_INSERT_COLUMNS'])
+                           'TOK_INSERT_INTO','TOK_INSERT_COLUMNS','TOK_BULK_INTO','TOK_INSERT_ROW','TOK_INSERT_ROWS'])
 
 
 tokens = lexer.tokens
@@ -27,8 +27,8 @@ tokens = lexer.tokens
 precedence = (
               ('left','OR'),
               ('left','AND'),
-              ('left','NOT')
-              )
+              ('left','NOT'),
+              ('right','INTO'))
 
 
 def token_list(plist):
@@ -44,9 +44,9 @@ def token_list(plist):
 
 
 def p_STATEMENT(p):
-    '''TOK_FUNCTION_EXPR : TOK_CREATE_TABLE END_QUERY
+    '''STATEMENT : TOK_INSERT_INTO END_QUERY
     | TOK_QUERY END_QUERY
-    | TOK_INSERT_INTO END_QUERY'''
+    | TOK_BULK_INTO END_QUERY'''
     p[0] = p[1]
 
 
@@ -190,16 +190,16 @@ def p_COMPARE_TYPE_EXPR(p):
     | LIKE'''
     p[0] = p[1]
     
-
 def p_TOK_FUNCTION_EXPR(p):
     '''TOK_FUNCTION_EXPR : TOK_FUNCTION
     | TOK_BEWTEEN'''
     p[0] = p[1]
     
-       
 def p_TOK_FUNCTION(p):
-    '''TOK_FUNCTION : WORD "(" FUNCTION_PARMS_EXPR ")"'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[1],p[3])
+    '''TOK_FUNCTION : LEFT_VALUE_EXPR "(" FUNCTION_PARMS_EXPR ")"'''
+    if p[1].getTokType() != TOKEN.TOK_VALUE:
+        Exception("syntax error!")
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[1].getTokValue(),p[3])
     
        
 def p_TOK_BEWTEEN(p):
@@ -441,20 +441,37 @@ def p_TOK_GROUPBY(p):
 '''=================================Insert define========================================'''    
 
 def p_TOK_INSERT_INTO(p):
-    '''TOK_INSERT_INTO : INSERT INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROWS'''
-    p[3].toStringTree()
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
+    '''TOK_INSERT_INTO : INSERT INSERT_TABLE_EXPR TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROW'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_INTO,None,[p[2]] + [p[3]] + [p[5]])
     
     
-    
+def p_INSERT_TABLE_EXPR(p):
+    '''INSERT_TABLE_EXPR : INTO LEFT_VALUE_EXPR'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_TABLE_NAME,None,[p[2]])        
+#     
 def p_TOK_INSERT_COLUMNS(p):
-    '''TOK_INSERT_COLUMNS : "(" LEFT_VALUES_EXPR ")" '''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_ROW,None,p[2])      
-      
+    '''TOK_INSERT_COLUMNS : "(" LEFT_VALUES_EXPR ")"'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_COLUMNS,None,p[2])      
+#       
+#     
+def p_TOK_INSERT_ROW(p):
+    '''TOK_VALUE_ROW : "(" RIGHT_VALUES_EXPR ")" '''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_ROW,None,p[2])  
+
     
-def p_TOK_INSERT_VALUES(p):
-    '''TOK_VALUE_ROWS : "(" RIGHT_VALUES_EXPR ")" '''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_COLUMNS,None,p[2])  
-
-
-
+def p_TOK_BULK_ROWS(p):
+    '''TOK_BULK_ROWS : "[" INSERT_ROWS_EXPR "]" '''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_ROWS,None,p[2])  
+ 
+# 
+def p_INSERT_ROWS_EXPR(p):
+    '''INSERT_ROWS_EXPR : TOK_VALUE_ROW
+    | TOK_VALUE_ROW COMMA TOK_VALUE_ROW
+    | TOK_VALUE_ROW COMMA INSERT_ROWS_EXPR'''
+    p[0] = token_list(p)
+# 
+# 
+def p_TOK_BULK_INTO(p):
+    '''TOK_BULK_INTO : BULK INSERT_TABLE_EXPR TOK_INSERT_COLUMNS VALUES TOK_BULK_ROWS'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_BULK_INTO,None,[p[2]] + [p[3]] + [p[5]])
+    

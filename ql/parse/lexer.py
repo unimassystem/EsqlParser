@@ -8,6 +8,7 @@ Created on Dec 15, 2016
 reserved = {
     'select': 'SELECT',
     'insert': 'INSERT',
+    'bulk': 'BULK',
     'upsert': 'UPSERT',
     'update': 'UPDATE',
     'delete': 'DELETE',
@@ -42,6 +43,7 @@ reserved = {
     'group': 'GROUP',
     'by': 'BY'
 }
+
 
 tokens = (
     'COMPARE_TYPE',
