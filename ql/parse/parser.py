@@ -91,10 +91,19 @@ def p_TOK_KEY_VALUE(p):
         p[0] = p[1]
     p[0].setTokType(TOKEN.TOK_KEY_VALUE)
 
+
+
+def p_LEFT_RESERVED_VALUES_EXPR(p):
+    '''LEFT_RESERVED_VALUES_EXPR :  FROM
+    | TO'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_VALUE,p[1],None)
+
+
  
 def p_LEFT_VALUE_EXPR(p):
     '''LEFT_VALUE_EXPR :  VALUE_EXPR
-    | TOK_FUNCTION_EXPR'''
+    | TOK_FUNCTION_EXPR
+    | LEFT_RESERVED_VALUES_EXPR'''
     p[0] = p[1]
 
 def p_LEFT_VALUES_EXPR(p):

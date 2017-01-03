@@ -13,6 +13,7 @@ reserved = {
     'delete': 'DELETE',
     'create': 'CREATE',
     'from': 'FROM',
+    'to': 'TO',
     'where': 'WHERE',
     'into': 'INTO',
     'values': 'VALUES',
