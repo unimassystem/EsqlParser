@@ -31,10 +31,17 @@ if __name__ == "__main__":
 #         
 #         val.toStringTree()
         
-               
-        val = parser.parse(lexer=lexer.clone(),debug=False,input="select sum(id) from test.info group by range(my_age,{from=10,to=20},{from=20});")
+#                
+#         val = parser.parse(lexer=lexer.clone(),debug=False,input="select sum(id) from test.info group by range(my_age,{from=10,to=20},{from=20});")
+#         
+#         val.toStringTree()
+        
+                       
+        val = parser.parse(lexer=lexer.clone(),debug=True,input="insert into my_index.index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);")
         
         val.toStringTree()
+        
+        
         
     else: 
         val = parser.parse(lexer=lexer.clone(),debug=False,input=sys.argv[1])

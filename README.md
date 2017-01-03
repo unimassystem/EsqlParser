@@ -70,6 +70,14 @@ example:
     select * from my_table.my_index group by date_histogram(timestamp,{interval=12h});
 
 
+##Insert
+	INSERT INTO [my_index]<.my_table> [colums] VALUES [row values]
+
+example:
+
+    insert into my_index.index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002'])
+
+
 #Getting Started
 
 Requirement python3.5,Install Yacc/Lex first:

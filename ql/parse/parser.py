@@ -18,7 +18,8 @@ TOKEN = Enum('TOKEN', ['TOK_IDENTIFIER','TOK_VALUE','TOK_DOT','TOK_CORE_TYPE','T
                            'TOK_FUNCTION',
                            'TOK_KEY_VALUE',
                            'TOK_COMPARE','TOK_REVERSED','TOK_COMPLEX',
-                           'TOK_SELECT','TOK_FROM','TOK_WHERE','TOK_LIMIT','TOK_ORDERBY','TOK_GROUPBY','TOK_SELEXPR','TOK_SORT'])
+                           'TOK_SELECT','TOK_FROM','TOK_WHERE','TOK_LIMIT','TOK_ORDERBY','TOK_GROUPBY','TOK_SELEXPR','TOK_SORT',
+                           'TOK_INSERT_INTO','TOK_INSERT_ROW','TOK_INSERT_COLUMNS'])
 
 
 tokens = lexer.tokens
@@ -44,7 +45,8 @@ def token_list(plist):
 
 def p_STATEMENT(p):
     '''TOK_FUNCTION_EXPR : TOK_CREATE_TABLE END_QUERY
-    | TOK_QUERY END_QUERY'''
+    | TOK_QUERY END_QUERY
+    | TOK_INSERT_INTO END_QUERY'''
     p[0] = p[1]
 
 
@@ -118,6 +120,14 @@ def p_RIGHT_VALUE_EXPR(p):
     p[0] = p[1]    
 
 
+def p_RIGHT_VALUES_EXPR(p):
+    '''RIGHT_VALUES_EXPR :  VALUE_EXPR
+    | RIGHT_VALUE_EXPR COMMA RIGHT_VALUE_EXPR
+    | RIGHT_VALUE_EXPR COMMA RIGHT_VALUES_EXPR'''
+    p[0] = token_list(p)
+    
+    
+
 def p_VALUE_EXPR(p):
     '''VALUE_EXPR :  TOK_DOT
     | TOK_VALUE
@@ -140,7 +150,70 @@ def p_TOK_VALUE(p):
     | "*"'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_VALUE,p[1],None)
     
+'''=======================================operator define=============================================='''
+
+ 
+def p_EXPRESSIONS_REVERSED_EXPR(p):
+    '''EXPRESSION_EXPR : NOT EXPRESSION_EXPR'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_REVERSED,p[1].lower(),[p[2]])
     
+
+def p_EXPRESSIONS_GROUP_EXPR(p):
+    '''EXPRESSION_EXPR : "(" EXPRESSION_EXPR ")"'''
+    p[0] = p[2]
+
+
+def p_EXPRESSION_OPERATOR_EXPR(p):
+    '''EXPRESSION_EXPR :  EXPRESSION_EXPR OR EXPRESSION_EXPR
+    | EXPRESSION_EXPR AND EXPRESSION_EXPR'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_COMPLEX,p[2].lower(),[p[1],p[3]])
+
+
+
+def p_EXPRESSION_EXPR(p):
+    '''EXPRESSION_EXPR : TOK_EXPRESSION
+    | TOK_FUNCTION_EXPR'''
+    p[0] = p[1]
+    
+    
+def p_TOK_EXPRESSION(p):
+    '''TOK_EXPRESSION : LEFT_VALUE_EXPR COMPARE_TYPE_EXPR RIGHT_VALUE_EXPR'''
+    if p[2] == '!=':
+        expression = ASTNode.ASTNode(TOKEN.TOK_COMPARE,'=',[p[1],p[3]])
+        p[0] = ASTNode.ASTNode(TOKEN.TOK_REVERSED,'NOT'.lower(),[expression])
+    else:
+        p[0] = ASTNode.ASTNode(TOKEN.TOK_COMPARE,p[2],[p[1],p[3]])
+
+
+def p_COMPARE_TYPE_EXPR(p):
+    '''COMPARE_TYPE_EXPR : COMPARE_TYPE
+    | LIKE'''
+    p[0] = p[1]
+    
+
+def p_TOK_FUNCTION_EXPR(p):
+    '''TOK_FUNCTION_EXPR : TOK_FUNCTION
+    | TOK_BEWTEEN'''
+    p[0] = p[1]
+    
+       
+def p_TOK_FUNCTION(p):
+    '''TOK_FUNCTION : WORD "(" FUNCTION_PARMS_EXPR ")"'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[1],p[3])
+    
+       
+def p_TOK_BEWTEEN(p):
+    '''TOK_BEWTEEN : LEFT_VALUE_EXPR BETWEEN RIGHT_VALUE_EXPR AND RIGHT_VALUE_EXPR'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[2],[p[1],(p[3]),p[5]])
+
+
+def p_FUNCTION_PARMS_EXPR(p):
+    '''FUNCTION_PARMS_EXPR :  VALUE_EXPR
+    | VALUE_EXPR COMMA VALUE_EXPR
+    | VALUE_EXPR COMMA FUNCTION_PARMS_EXPR'''
+    p[0] = token_list(p)
+    
+        
 
 '''==========================================table define===========================================
 
@@ -248,70 +321,6 @@ def p_TOK_COLUMN_DEFINE(p):
     else:
         p[0] = ASTNode.ASTNode(TOKEN.TOK_COLUMN_DEFINE,p[1],[p[2],p[3]])     
         
-
-
-'''=======================================operator define=============================================='''
-
- 
-def p_EXPRESSIONS_REVERSED_EXPR(p):
-    '''EXPRESSION_EXPR : NOT EXPRESSION_EXPR'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_REVERSED,p[1].lower(),[p[2]])
-    
-
-def p_EXPRESSIONS_GROUP_EXPR(p):
-    '''EXPRESSION_EXPR : "(" EXPRESSION_EXPR ")"'''
-    p[0] = p[2]
-
-
-def p_EXPRESSION_OPERATOR_EXPR(p):
-    '''EXPRESSION_EXPR :  EXPRESSION_EXPR OR EXPRESSION_EXPR
-    | EXPRESSION_EXPR AND EXPRESSION_EXPR'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_COMPLEX,p[2].lower(),[p[1],p[3]])
-
-
-
-def p_EXPRESSION_EXPR(p):
-    '''EXPRESSION_EXPR : TOK_EXPRESSION
-    | TOK_FUNCTION_EXPR'''
-    p[0] = p[1]
-    
-    
-def p_TOK_EXPRESSION(p):
-    '''TOK_EXPRESSION : LEFT_VALUE_EXPR COMPARE_TYPE_EXPR RIGHT_VALUE_EXPR'''
-    if p[2] == '!=':
-        expression = ASTNode.ASTNode(TOKEN.TOK_COMPARE,'=',[p[1],p[3]])
-        p[0] = ASTNode.ASTNode(TOKEN.TOK_REVERSED,'NOT'.lower(),[expression])
-    else:
-        p[0] = ASTNode.ASTNode(TOKEN.TOK_COMPARE,p[2],[p[1],p[3]])
-
-
-def p_COMPARE_TYPE_EXPR(p):
-    '''COMPARE_TYPE_EXPR : COMPARE_TYPE
-    | LIKE'''
-    p[0] = p[1]
-    
-
-def p_TOK_FUNCTION_EXPR(p):
-    '''TOK_FUNCTION_EXPR : TOK_FUNCTION
-    | TOK_BEWTEEN'''
-    p[0] = p[1]
-    
-       
-def p_TOK_FUNCTION(p):
-    '''TOK_FUNCTION : WORD "(" FUNCTION_PARMS_EXPR ")"'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[1],p[3])
-    
-       
-def p_TOK_BEWTEEN(p):
-    '''TOK_BEWTEEN : LEFT_VALUE_EXPR BETWEEN RIGHT_VALUE_EXPR AND RIGHT_VALUE_EXPR'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[2],[p[1],(p[3]),p[5]])
-
-
-def p_FUNCTION_PARMS_EXPR(p):
-    '''FUNCTION_PARMS_EXPR :  VALUE_EXPR
-    | VALUE_EXPR COMMA VALUE_EXPR
-    | VALUE_EXPR COMMA FUNCTION_PARMS_EXPR'''
-    p[0] = token_list(p)
       
       
                  
@@ -413,6 +422,8 @@ def p_TOK_SORT(p):
         p[0] = ASTNode.ASTNode(TOKEN.TOK_SORT,None,[p[1],p[2]])  
     
     
+    
+    
 '''=================================Aggregations define========================================'''
         
 def p_TOK_QUERY_WITH_GROUPBY(p):
@@ -423,5 +434,27 @@ def p_TOK_QUERY_WITH_GROUPBY(p):
         
 def p_TOK_GROUPBY(p):
     '''TOK_GROUPBY : LEFT_VALUES_EXPR'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_GROUPBY,None,p[1])        
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_GROUPBY,None,p[1])    
+    
+    
+    
+'''=================================Insert define========================================'''    
+
+def p_TOK_INSERT_INTO(p):
+    '''TOK_INSERT_INTO : INSERT INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROWS'''
+    p[3].toStringTree()
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
+    
+    
+    
+def p_TOK_INSERT_COLUMNS(p):
+    '''TOK_INSERT_COLUMNS : "(" LEFT_VALUES_EXPR ")" '''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_ROW,None,p[2])      
+      
+    
+def p_TOK_INSERT_VALUES(p):
+    '''TOK_VALUE_ROWS : "(" RIGHT_VALUES_EXPR ")" '''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_COLUMNS,None,p[2])  
+
+
 
