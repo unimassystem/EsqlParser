@@ -13,6 +13,27 @@ Familiar SQL syntax::
          birthday date
     );
 
+Support structured data::
+
+    create table my_index.my_table (
+         id string,
+         name string,
+         obj object as (
+             first_name string,
+             second_name string
+         )
+    );
+    
+    Insert into my_index.index (id,name,obj)  (1001,'unimas',{address='zhejiang',postCode='330010'});
+    
+    Insert into my_index.index (id,name,list)  (1001,'unimas',['message 1','message 2']);
+
+
+Support Upsert::
+
+    upsert into my_index (_id,name,age,address,message) values (330001,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);
+
+
 
 ##Create table::
 
@@ -75,8 +96,24 @@ example:
 
 example:
 
-    insert into my_index.index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002'])
+    insert into my_index.index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);
 
+
+##Update
+	UPDATE [my_index]<.my_table>  SET [column=value,...] WHERE [_id = xxxx] and < _route/_parent = xxxx >
+
+example:
+
+    update my_index set name = 'lisi' ,age = 30,address={address='shanghai',postCode='330010'} where _id = 330111111;
+    
+    
+##Upsert
+    Upsert INTO [my_index]<.my_table> [colums] VALUES [row values]; #_id is not null
+
+example:
+
+    upsert into my_index (_id,name,age,address,message) values (330001,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);
+        
 
 #Getting Started
 
