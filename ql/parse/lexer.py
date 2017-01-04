@@ -13,6 +13,7 @@ reserved = {
     'update': 'UPDATE',
     'delete': 'DELETE',
     'create': 'CREATE',
+    'set': 'SET',
     'from': 'FROM',
     'to': 'TO',
     'where': 'WHERE',
