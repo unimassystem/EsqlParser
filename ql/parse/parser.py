@@ -11,7 +11,7 @@ from enum import Enum
 
 
 TOKEN = Enum('TOKEN', ['TOK_IDENTIFIER','TOK_VALUE','TOK_DOT','TOK_CORE_TYPE','TOK_SORT_MODE',
-                           'TOK_LIST','TOK_DICT',
+                           'TOK_LIST','TOK_DICT','TOK_TUPLE',
                            'TOK_EXPRESSION',
                            'TOK_COLUMN_DEFINE','TOK_META_DEFINE','TOK_TABLE_COLUMNS','TOK_TABLE_NAME','TOK_TABLE_METAS','TOK_TABLE_OPTIONS',
                            'TOK_CREATE_TABLE','TOK_QUERY',
@@ -27,8 +27,7 @@ tokens = lexer.tokens
 precedence = (
               ('left','OR'),
               ('left','AND'),
-              ('left','NOT'),
-              ('right','INTO'))
+              ('left','NOT'))
 
 
 def token_list(plist):
@@ -44,7 +43,8 @@ def token_list(plist):
 
 
 def p_STATEMENT(p):
-    '''STATEMENT : TOK_INSERT_INTO END_QUERY
+    '''STATEMENT : TOK_CREATE_TABLE END_QUERY
+    | TOK_INSERT_INTO END_QUERY
     | TOK_QUERY END_QUERY
     | TOK_BULK_INTO END_QUERY'''
     p[0] = p[1]
@@ -65,10 +65,22 @@ def p_TOK_DICT_OBJECT(p):
 
 
 def p_TOK_LIST_OBJECT(p):
-    '''TOK_LIST_OBJECT : "[" VALUES_EXPR "]"'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_LIST,None,p[2])
-    
+    '''TOK_LIST_OBJECT : "[" VALUES_EXPR "]"
+    | "[" "]"'''
+    if len(p) == 4:
+        p[0] = ASTNode.ASTNode(TOKEN.TOK_LIST,None,p[2])
+    else:
+        p[0] = ASTNode.ASTNode(TOKEN.TOK_LIST,None,None)
 
+def p_TOK_TUPLE_OBJECT(p):
+    '''TOK_TUPLE_OBJECT : "(" VALUES_EXPR ")"
+    | "(" ")"'''
+    if len(p) == 4:
+        p[0] = ASTNode.ASTNode(TOKEN.TOK_TUPLE,None,p[2])
+    else:
+        p[0] = ASTNode.ASTNode(TOKEN.TOK_TUPLE,None,None)
+        
+    
 def p_KV_ELEMENTS_EXPR(p):
     '''KV_ELEMENTS_EXPR : TOK_KEY_VALUE
     | TOK_KEY_VALUE COMMA TOK_KEY_VALUE
@@ -82,8 +94,6 @@ def p_VALUES_EXPR(p):
     | VALUE_EXPR COMMA VALUES_EXPR'''
     p[0] = token_list(p)
             
-            
-
 
 def p_TOK_KEY_VALUE(p):
     '''TOK_KEY_VALUE : TOK_EXPRESSION'''
@@ -190,28 +200,24 @@ def p_COMPARE_TYPE_EXPR(p):
     | LIKE'''
     p[0] = p[1]
     
+    
 def p_TOK_FUNCTION_EXPR(p):
-    '''TOK_FUNCTION_EXPR : TOK_FUNCTION
-    | TOK_BEWTEEN'''
+    '''TOK_FUNCTION_EXPR : TOK_BEWTEEN
+    | TOK_FUNCTION'''
     p[0] = p[1]
     
+    
 def p_TOK_FUNCTION(p):
-    '''TOK_FUNCTION : LEFT_VALUE_EXPR "(" FUNCTION_PARMS_EXPR ")"'''
-    if p[1].getTokType() != TOKEN.TOK_VALUE:
-        Exception("syntax error!")
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[1].getTokValue(),p[3])
+    '''TOK_FUNCTION : VALUE_EXPR TOK_TUPLE_OBJECT'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[1].getTokValue(),p[2].getChildren())
     
        
 def p_TOK_BEWTEEN(p):
-    '''TOK_BEWTEEN : LEFT_VALUE_EXPR BETWEEN RIGHT_VALUE_EXPR AND RIGHT_VALUE_EXPR'''
+    '''TOK_BEWTEEN : VALUE_EXPR BETWEEN RIGHT_VALUE_EXPR AND RIGHT_VALUE_EXPR'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_FUNCTION,p[2],[p[1],(p[3]),p[5]])
 
 
-def p_FUNCTION_PARMS_EXPR(p):
-    '''FUNCTION_PARMS_EXPR :  VALUE_EXPR
-    | VALUE_EXPR COMMA VALUE_EXPR
-    | VALUE_EXPR COMMA FUNCTION_PARMS_EXPR'''
-    p[0] = token_list(p)
+
     
         
 
@@ -271,15 +277,15 @@ def p_TOK_TABLE_METAS(p):
     else:  
         p[0] = ASTNode.ASTNode(TOKEN.TOK_TABLE_METAS,None,p[2])
         
+        
 def p_TOK_TABLE_OPTIONS(p):
     '''TOK_TABLE_OPTIONS : TOK_OPTIONS_OBJECT'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_TABLE_OPTIONS,None,[p[1]])
 
 
 def p_TOK_TABLE_NAME(p):
-    '''TOK_TABLE_NAME : LEFT_VALUE_EXPR'''
+    '''TOK_TABLE_NAME : VALUE_EXPR'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_TABLE_NAME,None,[p[1]])
-
 
 
 def p_TOK_TABLE_COLS(p):
@@ -441,17 +447,14 @@ def p_TOK_GROUPBY(p):
 '''=================================Insert define========================================'''    
 
 def p_TOK_INSERT_INTO(p):
-    '''TOK_INSERT_INTO : INSERT INSERT_TABLE_EXPR TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROW'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_INTO,None,[p[2]] + [p[3]] + [p[5]])
+    '''TOK_INSERT_INTO : INSERT INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROW'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
     
-    
-def p_INSERT_TABLE_EXPR(p):
-    '''INSERT_TABLE_EXPR : INTO LEFT_VALUE_EXPR'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_TABLE_NAME,None,[p[2]])        
+      
 #     
 def p_TOK_INSERT_COLUMNS(p):
-    '''TOK_INSERT_COLUMNS : "(" LEFT_VALUES_EXPR ")"'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_COLUMNS,None,p[2])      
+    '''TOK_INSERT_COLUMNS : TOK_TUPLE_OBJECT'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_INSERT_COLUMNS,None,p[1].getChildren())      
 #       
 #     
 def p_TOK_INSERT_ROW(p):
@@ -472,6 +475,6 @@ def p_INSERT_ROWS_EXPR(p):
 # 
 # 
 def p_TOK_BULK_INTO(p):
-    '''TOK_BULK_INTO : BULK INSERT_TABLE_EXPR TOK_INSERT_COLUMNS VALUES TOK_BULK_ROWS'''
-    p[0] = ASTNode.ASTNode(TOKEN.TOK_BULK_INTO,None,[p[2]] + [p[3]] + [p[5]])
+    '''TOK_BULK_INTO : BULK INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_BULK_ROWS'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_BULK_INTO,None,[p[3]] + [p[4]] + [p[6]])
     
