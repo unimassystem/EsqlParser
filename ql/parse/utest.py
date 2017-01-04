@@ -23,7 +23,7 @@ if __name__ == "__main__":
     if len(sys.argv) <= 2:
         
          
-        val = parser.parse(lexer=lexer.clone(),debug=False,input="create table my_tb (a string,b integer, c object as (raw string (index=yes,ppp=yes))) with meta (_parent (type='people')) with option (index.number_of_shars=10,index.flush_inteval='10s');")
+        val = parser.parse(lexer=lexer.clone(),debug=False,input="create table my_tb (a text,b integer, c object as (raw string (index=yes,ppp=yes))) with meta (_parent (type='people')) with option (index.number_of_shars=10,index.flush_inteval='10s');")
  
         val.toStringTree()
         

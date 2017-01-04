@@ -305,11 +305,7 @@ def p_TOK_COLUMNS_DEFINE(p):
 
 
 def p_COLUMN_TYPE(p):
-    '''COLUMN_TYPE : STRING
-    | INTEGER
-    | LONG
-    | DATE
-    | OBJECT'''
+    '''COLUMN_TYPE : WORD'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_CORE_TYPE,p[1],None)
  
  
