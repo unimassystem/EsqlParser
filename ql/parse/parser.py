@@ -8,20 +8,65 @@ from ql.parse import lexer
 from ql.parse import ASTNode
 from enum import Enum
 
+class AutoNumber(Enum):
+    def __new__(cls):
+        value = len(cls.__members__) + 1
+        obj = object.__new__(cls)
+        obj._value_ = value
+        return obj
+    
+    
+    
+class TOKEN(AutoNumber):
+    TOK_IDENTIFIER = ()
+    TOK_VALUE = ()
+    TOK_DOT = ()
+    TOK_LIST = ()
+    TOK_DICT = ()
+    TOK_TUPLE = ()
+    TOK_KEY_VALUE = ()
+    
+    TOK_CORE_TYPE = ()
+    TOK_TABLE_NAME=()
+    
+    TOK_CREATE_TABLE = ()
+    TOK_QUERY = ()
+    TOK_INSERT_INTO = ()
+    TOK_BULK_INTO = ()
+    TOK_UPSERT_INTO = ()
+    TOK_UPDATE = ()
+    TOK_DELETE = ()
+    
+    TOK_COLUMN_DEFINE = ()
+    TOK_META_DEFINE = ()
+    TOK_TABLE_COLUMNS = ()
+    TOK_TABLE_METAS = ()
+    TOK_TABLE_OPTIONS = ()
+    
+    TOK_FUNCTION = ()
+    TOK_EXPRESSION = ()
+    TOK_COMPARE = ()
+    TOK_REVERSED = ()
+    TOK_COMPLEX = ()
 
-
-TOKEN = Enum('TOKEN', ['TOK_IDENTIFIER','TOK_VALUE','TOK_DOT','TOK_CORE_TYPE','TOK_SORT_MODE',
-                           'TOK_LIST','TOK_DICT','TOK_TUPLE',
-                           'TOK_EXPRESSION',
-                           'TOK_COLUMN_DEFINE','TOK_META_DEFINE','TOK_TABLE_COLUMNS','TOK_TABLE_NAME','TOK_TABLE_METAS','TOK_TABLE_OPTIONS',
-                           'TOK_CREATE_TABLE','TOK_QUERY',
-                           'TOK_FUNCTION',
-                           'TOK_KEY_VALUE',
-                           'TOK_COMPARE','TOK_REVERSED','TOK_COMPLEX',
-                           'TOK_SELECT','TOK_FROM','TOK_WHERE','TOK_LIMIT','TOK_ORDERBY','TOK_GROUPBY','TOK_SELEXPR','TOK_SORT',
-                           'TOK_INSERT_INTO','TOK_INSERT_COLUMNS','TOK_BULK_INTO','TOK_INSERT_ROW','TOK_INSERT_ROWS',
-                           'TOK_UPSERT_INTO','TOK_UPDATE','TOK_SET_COLUMNS_CLAUSE'])
-
+    TOK_SELECT = ()
+    TOK_SELEXPR = ()
+    TOK_FROM = ()
+    TOK_WHERE = ()
+    TOK_LIMIT = ()
+    TOK_ORDERBY = ()
+    TOK_GROUPBY = ()
+    TOK_SORT = ()
+    TOK_SORT_MODE = ()
+    
+    TOK_INSERT_COLUMNS = ()
+    TOK_INSERT_ROW = ()
+    TOK_INSERT_ROWS = ()
+    
+    TOK_SET_COLUMNS_CLAUSE = ()
+    
+    TOK_HELLO_WORLD = ()
+    
 
 tokens = lexer.tokens
 
@@ -49,7 +94,8 @@ def p_STATEMENT(p):
     | TOK_QUERY END_QUERY
     | TOK_BULK_INTO END_QUERY
     | TOK_UPDATE END_QUERY
-    | TOK_UPSERT_INTO END_QUERY'''
+    | TOK_UPSERT_INTO END_QUERY
+    | TOK_DELETE END_QUERY'''
     p[0] = p[1]
 
 
@@ -221,25 +267,9 @@ def p_TOK_BEWTEEN(p):
 
 
 
-    
-        
 
-'''==========================================table define===========================================
 
-CREATE TABLE my_index.my_type (
-    id STRING (index = no),
-    name INTEGER,
-    log OBJECT AS (
-        raw string (index=not_analyzed,doc_values=false),
-        ik string (analyzer=ik)
-        )
-    ) with meta (
-        _parent (type='people')
-    ) with option (
-        index.number_of_shars=10,
-        index.flush_interval='10s'
-    )
-'''
+'''==========================================table define==========================================='''
 
 
 def p_TOK_CREATE_TABLE_WITH_OPTIONS(p):
@@ -496,5 +526,12 @@ def p_TOK_SET_COLUMNS(p):
 def p_TOK_UPSERT_INTO(p):
     '''TOK_UPSERT_INTO : UPSERT INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROW'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_UPSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
+    
+    
+def p_TOK_DELETE(p):
+    '''TOK_DELETE : DELETE FROM TOK_TABLE_NAME WHERE TOK_WHERE'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_DELETE,None,[p[3]] + [p[5]])    
+    
+    
     
     
