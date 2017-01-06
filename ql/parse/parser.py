@@ -94,21 +94,24 @@ def token_list(plist):
     return retval
 
 
-
-
-# def p_EXPLAIN_STATEMENT(p):
-#     '''STATEMENT : EXPLAIN STATEMENT'''
-#     p[0] = ASTNode.Node(TOKEN.TOK_EXPLAIN,None,[p[2]])
-     
-
+def p_EXECUTE_STATEMENT(p):
+    '''EXECUTE_STATEMENT : STATEMENT END_QUERY'''
+    p[0] = p[1]   
+    
+    
+def p_EXPLAIN_STATEMENT(p):
+    '''STATEMENT : EXPLAIN STATEMENT'''
+    p[0] = ASTNode.Node(TOKEN.TOK_EXPLAIN,None,[p[2]])
+    
+    
 def p_STATEMENT(p):
-    '''STATEMENT : TOK_CREATE_TABLE END_QUERY
-    | TOK_INSERT_INTO END_QUERY
-    | TOK_QUERY END_QUERY
-    | TOK_BULK_INTO END_QUERY
-    | TOK_UPDATE END_QUERY
-    | TOK_UPSERT_INTO END_QUERY
-    | TOK_DELETE END_QUERY'''
+    '''STATEMENT : TOK_CREATE_TABLE
+    | TOK_INSERT_INTO
+    | TOK_QUERY
+    | TOK_BULK_INTO
+    | TOK_UPDATE
+    | TOK_UPSERT_INTO
+    | TOK_DELETE'''
     p[0] = p[1]
 
 
@@ -272,7 +275,7 @@ def p_TOK_FUNCTION_EXPR(p):
     
 def p_TOK_FUNCTION(p):
     '''TOK_FUNCTION : VALUE_EXPR TOK_TUPLE_OBJECT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_FUNCTION,p[1].getTokValue(),p[2].getChildren())
+    p[0] = ASTNode.Node(TOKEN.TOK_FUNCTION,p[1].get_value(),p[2].get_children())
     
        
 def p_TOK_BEWTEEN(p):
@@ -510,7 +513,7 @@ def p_TOK_INSERT_INTO(p):
   
 def p_TOK_INSERT_COLUMNS(p):
     '''TOK_INSERT_COLUMNS : TOK_TUPLE_OBJECT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_INSERT_COLUMNS,None,p[1].getChildren())      
+    p[0] = ASTNode.Node(TOKEN.TOK_INSERT_COLUMNS,None,p[1].get_children())      
     
          
 def p_TOK_INSERT_ROW(p):

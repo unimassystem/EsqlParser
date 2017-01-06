@@ -39,58 +39,45 @@ if __name__ == "__main__":
             index.number_of_shars=10,
             index.flush_inteval='10s'
         );''',
+         
+         
+        '''select strcat(a,b),c.raw from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) and length(a.raw) > 10 and strcat(f.raw,b) limit 0,10 order by a asc,b,c desc;''',
+  
+         '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
+  
+  
+        '''insert into my_index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''',
+  
+        '''bulk into my_index(name,age,address,message) values 
+            [('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),
+            ('zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002'])];''',
+  
+        '''update my_index set name = 'lisi' ,age = 30,address={address='shanghai',postCode='330010'} where _id = 330111111;''',
+          
+        '''upsert into my_index (_id,name,age,address,message) values (330001,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''',
+          
+        '''delete from my_test.info where _id = 330111111;''',
         
         
-#         '''select strcat(a,b),c.raw from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) and length(a.raw) > 10 and strcat(f.raw,b) limit 0,10 order by a asc,b,c desc;''',
-# 
-#         '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
-# 
-# 
-#         '''insert into my_index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''',
-# 
-#         '''bulk into my_index(name,age,address,message) values 
-#             [('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),
-#             ('zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002'])];''',
-# 
-#         '''update my_index set name = 'lisi' ,age = 30,address={address='shanghai',postCode='330010'} where _id = 330111111;''',
-#         
-#         '''upsert into my_index (_id,name,age,address,message) values (330001,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''',
-#         
-#         '''delete from my_test.info where _id = 330111111;'''
-        
-        
-        
-#         '''explain create table my_tb (
-#             a text,b integer, 
-#             c object as (
-#                 raw string (index=yes,ppp=yes),
-#                 obj object as (
-#                     ddd string (index=yes,ppp=yes)
-#                 )
-#             )
-#         ) with meta (
-#             _parent (type='people')
-#         ) with option (
-#             index.number_of_shars=10,
-#             index.flush_inteval='10s'
-#         );''',
-        
-        
+        '''explain create table my_tb (
+            a text,b integer, 
+            c object as (
+                raw string (index=yes,ppp=yes),
+                obj object as (
+                    ddd string (index=yes,ppp=yes)
+                )
+            )
+        ) with meta (
+            _parent (type='people')
+        ) with option (
+            index.number_of_shars=10,
+            index.flush_inteval='10s'
+        );''',
         ]
 
         for sql in sqls:
             val = parser.parse(lexer=lexer.clone(),debug=False,input=sql)
             val.to_string()
-            
-            print(val.get_children_count())
-            
-            child = val.get_child(3)
-            
-            child.to_string()
-            
-            print('---------------------------------------------')
-
-   
     else: 
         val = parser.parse(lexer=lexer.clone(),debug=False,input=sys.argv[1])
         val.toStringTree()
