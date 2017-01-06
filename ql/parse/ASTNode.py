@@ -7,47 +7,47 @@ Created on Dec 26, 2016
 
 
 
-class ASTNode(object):
-    __slots__ = ('tokType','tokValue','children')
+class Node(object):
+    __slots__ = ('type','value','children')
     
-    def __init__(self,tokType,tokValue,children):
-        self.tokType = tokType
-        self.tokValue = tokValue
-        self.children = children
+    def __init__(self,_type,_value,_children):
+        self.type = _type
+        self.value = _value
+        self.children = _children
 
-    def setTokType(self,tokType):
-        self.tokType = tokType
+    def set_type(self,_type):
+        self.type = _type
         
-    def getTokType(self):
-        return self.tokType
+    def get_type(self):
+        return self.type
     
-    def getTokValue(self):
-        return self.tokValue
+    def get_value(self):
+        return self.value
     
-    def getChildrenCount(self):
+    def get_children_count(self):
         return len(self.children)
     
-    def getChild(self,i):
+    def get_child(self,i):
         return self.children[i]
     
-    def getChildren(self):
+    def get_children(self):
         return self.children
 
-    def appendChildren(self,val):
-        return self.children.append(val)
+    def append_children(self,val):
+        self.children.append(val)
     
-    def toStringTree(self,depth=0):
+    def to_string(self,depth=0):
         tab = ''
         for i in range(depth):
             i = i
             tab += '\t'
-        print( tab + '('+ self.tokType.name)
-        if self.tokValue != None:
-            print( tab + '\t'+ self.tokValue)
-        if(self.getChildren() != None):
+        print( tab + '('+ self.get_type().name)
+        if self.value != None:
+            print( tab + '\t'+ self.get_value())
+        if(self.children != None):
             depth += 1
-            for node in self.getChildren():
-                node.toStringTree(depth)
+            for node in self.get_children():
+                node.to_string(depth)
         print(tab + ')')
         
 

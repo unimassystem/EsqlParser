@@ -80,13 +80,13 @@ if __name__ == "__main__":
 
         for sql in sqls:
             val = parser.parse(lexer=lexer.clone(),debug=False,input=sql)
-            val.toStringTree()
+            val.to_string()
             
-            print(val.getChildrenCount())
+            print(val.get_children_count())
             
-            child = val.getChild(3)
+            child = val.get_child(3)
             
-            child.toStringTree()
+            child.to_string()
             
             print('---------------------------------------------')
 
