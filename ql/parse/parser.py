@@ -38,7 +38,9 @@ class TOKEN(AutoNumber):
     TOK_DELETE = ()
     
     TOK_COLUMN_DEFINE = ()
+    TOK_COLUMN_OPTIONS = ()
     TOK_META_DEFINE = ()
+    TOK_META_OPTIONS = ()
     TOK_TABLE_COLUMNS = ()
     TOK_TABLE_METAS = ()
     TOK_TABLE_OPTIONS = ()
@@ -66,6 +68,7 @@ class TOKEN(AutoNumber):
     TOK_SET_COLUMNS_CLAUSE = ()
     
     TOK_EXPLAIN = ()
+    
     
     
     
@@ -299,10 +302,14 @@ def p_TOK_CREATE_TABLE(p):
     '''TOK_CREATE_TABLE : CREATE TABLE TOK_TABLE_NAME TOK_TABLE_COLS'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_CREATE_TABLE,None,[p[3],p[4]])
     
-        
+    
+def p_TOK_META_OPTIONS(p):
+    '''TOK_META_OPTIONS : TOK_OPTIONS_OBJECT'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_META_OPTIONS,None,[p[1]])
+            
     
 def p_TOK_META_DEFINE(p):
-    '''TOK_META_DEF : WORD TOK_OPTIONS_OBJECT'''
+    '''TOK_META_DEF : WORD TOK_META_OPTIONS'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_META_DEFINE,p[1],[p[2]])
 
 
@@ -359,9 +366,14 @@ def p_TOK_COLUMN_OBJECT_DEFINE(p):
     p[0].appendChildren(p[3])    
     
 
+def p_p_TOK_COLUMN_OPTIONS(p):
+    '''TOK_COLUMN_OPTIONS : TOK_OPTIONS_OBJECT'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_COLUMN_OPTIONS,None,[p[1]])
+
+
 def p_TOK_COLUMN_DEFINE(p):
     '''TOK_COLUMN_DEFINE : WORD COLUMN_TYPE
-    | WORD COLUMN_TYPE TOK_OPTIONS_OBJECT'''
+    | WORD COLUMN_TYPE TOK_COLUMN_OPTIONS'''
     if len(p) == 3:
         p[0] = ASTNode.ASTNode(TOKEN.TOK_COLUMN_DEFINE,p[1],[p[2]])
     else:

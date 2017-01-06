@@ -49,4 +49,5 @@ class ASTNode(object):
             for node in self.getChildren():
                 node.toStringTree(depth)
         print(tab + ')')
+        
 

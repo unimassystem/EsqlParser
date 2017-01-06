@@ -41,7 +41,7 @@ if __name__ == "__main__":
         );''',
         
         
-#         '''select strcat(a,b),c.raw from test.info where a = 10 or b between 10 and 20 and ( b = 20 or c = 10) and length(a.raw) > 10 and strcat(f.raw,b) limit 0,10 order by a asc,b,c desc;''',
+#         '''select strcat(a,b),c.raw from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) and length(a.raw) > 10 and strcat(f.raw,b) limit 0,10 order by a asc,b,c desc;''',
 # 
 #         '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
 # 
