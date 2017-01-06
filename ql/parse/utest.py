@@ -60,20 +60,20 @@ if __name__ == "__main__":
         
         
         
-        '''explain create table my_tb (
-            a text,b integer, 
-            c object as (
-                raw string (index=yes,ppp=yes),
-                obj object as (
-                    ddd string (index=yes,ppp=yes)
-                )
-            )
-        ) with meta (
-            _parent (type='people')
-        ) with option (
-            index.number_of_shars=10,
-            index.flush_inteval='10s'
-        );''',
+#         '''explain create table my_tb (
+#             a text,b integer, 
+#             c object as (
+#                 raw string (index=yes,ppp=yes),
+#                 obj object as (
+#                     ddd string (index=yes,ppp=yes)
+#                 )
+#             )
+#         ) with meta (
+#             _parent (type='people')
+#         ) with option (
+#             index.number_of_shars=10,
+#             index.flush_inteval='10s'
+#         );''',
         
         
         ]
@@ -81,6 +81,13 @@ if __name__ == "__main__":
         for sql in sqls:
             val = parser.parse(lexer=lexer.clone(),debug=False,input=sql)
             val.toStringTree()
+            
+            print(val.getChildrenCount())
+            
+            child = val.getChild(3)
+            
+            child.toStringTree()
+            
             print('---------------------------------------------')
 
    

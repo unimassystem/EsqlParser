@@ -23,7 +23,13 @@ class ASTNode(object):
     
     def getTokValue(self):
         return self.tokValue
-        
+    
+    def getChildrenCount(self):
+        return len(self.children)
+    
+    def getChild(self,i):
+        return self.children[i]
+    
     def getChildren(self):
         return self.children
 
