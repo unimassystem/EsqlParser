@@ -36,7 +36,8 @@ reserved = {
     'desc': 'DESC',
     'order': 'ORDER',
     'group': 'GROUP',
-    'by': 'BY'
+    'by': 'BY',
+    'explain': 'EXPLAIN'
 }
 
 

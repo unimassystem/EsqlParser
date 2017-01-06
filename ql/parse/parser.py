@@ -65,7 +65,10 @@ class TOKEN(AutoNumber):
     
     TOK_SET_COLUMNS_CLAUSE = ()
     
-    TOK_HELLO_WORLD = ()
+    TOK_EXPLAIN = ()
+    
+    
+    
     
 
 tokens = lexer.tokens
@@ -87,6 +90,13 @@ def token_list(plist):
             retval = [plist[1],plist[3]]    
     return retval
 
+
+
+
+def p_EXPLAIN_STATEMENT(p):
+    '''STATEMENT : EXPLAIN STATEMENT'''
+    p[0] = ASTNode.ASTNode(TOKEN.TOK_EXPLAIN,None,[p[2]])
+     
 
 def p_STATEMENT(p):
     '''STATEMENT : TOK_CREATE_TABLE END_QUERY
@@ -120,6 +130,7 @@ def p_TOK_LIST_OBJECT(p):
         p[0] = ASTNode.ASTNode(TOKEN.TOK_LIST,None,p[2])
     else:
         p[0] = ASTNode.ASTNode(TOKEN.TOK_LIST,None,None)
+
 
 def p_TOK_TUPLE_OBJECT(p):
     '''TOK_TUPLE_OBJECT : "(" VALUES_EXPR ")"
@@ -510,7 +521,6 @@ def p_TOK_BULK_INTO(p):
     '''TOK_BULK_INTO : BULK INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_BULK_ROWS'''
     p[0] = ASTNode.ASTNode(TOKEN.TOK_BULK_INTO,None,[p[3]] + [p[4]] + [p[6]])
     
-
 
 def p_TOK_UPDATE(p):
     '''TOK_UPDATE : UPDATE TOK_TABLE_NAME SET TOK_SET_COLUMNS_CLAUSE WHERE TOK_WHERE'''
