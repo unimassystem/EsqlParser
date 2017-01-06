@@ -4,7 +4,7 @@ Created on Dec 26, 2016
 @author: unimas
 '''
 
-
+from collections import OrderedDict
 
 
 class Node(object):
@@ -49,5 +49,37 @@ class Node(object):
             for node in self.get_children():
                 node.to_string(depth)
         print(tab + ')')
-        
 
+    def sub(self, index):
+        """ Get child by index
+        """
+        def _sub(elm, _index) -> Node:  # provide convenience for coding
+            return elm.children[_index]
+        return _sub(self, index)
+
+    def sub_token(self, child_type):
+        """ Get child by it's token type
+        """
+        def _sub_type(elm, _type) -> Node:  # provide convenience for coding
+            if elm.children:
+                for child in elm.children:
+                    if child.type == _type:
+                        return child
+        return _sub_type(self, child_type)
+
+    def dict(self):
+        """ Generate serializable dict for unit test
+        """
+        from ql.parse.parser import TOKEN
+        name = self.type.name
+        ret = OrderedDict({'type': name[4:] if name.startswith('TOK_') else name})
+
+        if self.value and self.type not in [TOKEN.TOK_DOT, TOKEN.TOK_KEY_VALUE]:
+            ret['value'] = self.value
+
+        if self.children:
+            children_index = 0
+            for item in self.children:
+                ret['c%d' % children_index] = item.dict()
+                children_index += 1
+        return ret
