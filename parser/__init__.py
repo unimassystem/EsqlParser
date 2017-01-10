@@ -4,7 +4,7 @@ from ply.lex import lex
 from ply.yacc import yacc
 
 from ql.parse import lexer, parser as grammar
-from ql.parse.parser import TOKEN as TK
+from ql.parse.parser import TK
 from ql.parse.ASTNode import Node
 from parser.utility import recursive_import
 

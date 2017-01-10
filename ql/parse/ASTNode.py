@@ -26,10 +26,7 @@ class Node(object):
     
     def get_children_count(self):
         return len(self.children)
-    
-    def get_child(self,i):
-        return self.children[i]
-    
+
     def get_children(self):
         return self.children
 
@@ -70,11 +67,11 @@ class Node(object):
     def dict(self):
         """ Generate serializable dict for unit test
         """
-        from ql.parse.parser import TOKEN
+        from ql.parse.parser import TK
         name = self.type.name
         ret = OrderedDict({'type': name[4:] if name.startswith('TOK_') else name})
 
-        if self.value and self.type not in [TOKEN.TOK_DOT, TOKEN.TOK_KEY_VALUE]:
+        if self.value and self.type not in [TK.TOK_DOT, TK.TOK_KEY_VALUE]:
             ret['value'] = self.value
 
         if self.children:
