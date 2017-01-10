@@ -1,0 +1,259 @@
+'explain create table my_index.my_table (id string, name integer);':
+    ast:
+        type: 'EXPLAIN'
+        c0:
+            type: 'CREATE_TABLE'
+            c0:
+                type: 'TABLE_NAME'
+                c0:
+                    type: 'DOT'
+                    c0:
+                        type: 'VALUE'
+                        value: 'my_index'
+                    c1:
+                        type: 'VALUE'
+                        value: 'my_table'
+            c1:
+                type: 'TABLE_COLUMNS'
+                c0:
+                    type: 'COLUMN_DEFINE'
+                    value: 'id'
+                    c0:
+                        type: 'CORE_TYPE'
+                        value: 'string'
+                c1:
+                    type: 'COLUMN_DEFINE'
+                    value: 'name'
+                    c0:
+                        type: 'CORE_TYPE'
+                        value: 'integer'
+
+    dsl:
+        doc_type: 'my_table'
+        body:
+            my_table:
+                properties:
+                    name:
+                        type: 'integer'
+                    id:
+                        type: 'string'
+        index: 'my_index'
+
+'''
+create table my_index.my_table (
+    id string, name string,
+    sub object as (
+        sub object as (),
+        sub2 object as (
+            id string, name string,
+            sub object as ()
+        )
+    )
+);''':
+    ast:
+        type: 'CREATE_TABLE'
+        c0:
+            type: 'TABLE_NAME'
+            c0:
+                type: 'DOT'
+                c0:
+                    type: 'VALUE'
+                    value: 'my_index'
+                c1:
+                    type: 'VALUE'
+                    value: 'my_table'
+        c1:
+            type: 'TABLE_COLUMNS'
+            c0:
+                type: 'COLUMN_DEFINE'
+                value: 'id'
+                c0:
+                    type: 'CORE_TYPE'
+                    value: 'string'
+            c1:
+                type: 'COLUMN_DEFINE'
+                value: 'name'
+                c0:
+                    type: 'CORE_TYPE'
+                    value: 'string'
+            c2:
+                type: 'COLUMN_DEFINE'
+                value: 'sub'
+                c0:
+                    type: 'CORE_TYPE'
+                    value: 'object'
+                c1:
+                    type: 'TABLE_COLUMNS'
+                    c0:
+                        type: 'COLUMN_DEFINE'
+                        value: 'sub'
+                        c0:
+                            type: 'CORE_TYPE'
+                            value: 'object'
+                        c1:
+                            type: 'TABLE_COLUMNS'
+                    c1:
+                        type: 'COLUMN_DEFINE'
+                        value: 'sub2'
+                        c0:
+                            type: 'CORE_TYPE'
+                            value: 'object'
+                        c1:
+                            type: 'TABLE_COLUMNS'
+                            c0:
+                                type: 'COLUMN_DEFINE'
+                                value: 'id'
+                                c0:
+                                    type: 'CORE_TYPE'
+                                    value: 'string'
+                            c1:
+                                type: 'COLUMN_DEFINE'
+                                value: 'name'
+                                c0:
+                                    type: 'CORE_TYPE'
+                                    value: 'string'
+                            c2:
+                                type: 'COLUMN_DEFINE'
+                                value: 'sub'
+                                c0:
+                                    type: 'CORE_TYPE'
+                                    value: 'object'
+                                c1:
+                                    type: 'TABLE_COLUMNS'
+    dsl:
+        index: 'my_index'
+        doc_type: 'my_table'
+        body:
+            my_table:
+                properties:
+                    id:
+                        type: 'string'
+                    name:
+                        type: 'string'
+                    sub:
+                        type: 'object'
+                        properties:
+                            sub:
+                                type: 'object'
+                            sub2:
+                                type: 'object'
+                                properties:
+                                    sub:
+                                        type: 'object'
+                                    id:
+                                        type: 'string'
+                                    name:
+                                        type: 'string'
+
+'''
+create table my_index.my_table (
+    id string,
+    name string (analyzer=ik),
+    birthday date (analyzer=ik, doc_values=true)
+);''':
+    ast:
+        type: 'CREATE_TABLE'
+        c0:
+            type: 'TABLE_NAME'
+            c0:
+                type: 'DOT'
+                c0:
+                    type: 'VALUE'
+                    value: 'my_index'
+                c1:
+                    type: 'VALUE'
+                    value: 'my_table'
+        c1:
+            type: 'TABLE_COLUMNS'
+            c0:
+                type: 'COLUMN_DEFINE'
+                value: 'id'
+                c0:
+                    type: 'CORE_TYPE'
+                    value: 'string'
+            c1:
+                type: 'COLUMN_DEFINE'
+                value: 'name'
+                c0:
+                    type: 'CORE_TYPE'
+                    value: 'string'
+                c1:
+                    type: 'COLUMN_OPTIONS'
+                    c0:
+                        type: 'DICT'
+                        c0:
+                            type: 'KEY_VALUE'
+                            c0:
+                                type: 'VALUE'
+                                value: 'analyzer'
+                            c1:
+                                type: 'VALUE'
+                                value: 'ik'
+            c2:
+                type: 'COLUMN_DEFINE'
+                value: 'birthday'
+                c0:
+                    type: 'CORE_TYPE'
+                    value: 'date'
+                c1:
+                    type: 'COLUMN_OPTIONS'
+                    c0:
+                        type: 'DICT'
+                        c0:
+                            type: 'KEY_VALUE'
+                            c0:
+                                type: 'VALUE'
+                                value: 'analyzer'
+                            c1:
+                                type: 'VALUE'
+                                value: 'ik'
+                        c1:
+                            type: 'KEY_VALUE'
+                            c0:
+                                type: 'VALUE'
+                                value: 'doc_values'
+                            c1:
+                                type: 'VALUE'
+                                value: 'true'
+    dsl:
+        index: 'my_index'
+        doc_type: 'my_table'
+        body:
+            my_table:
+                properties:
+                    id:
+                        type: 'string'
+                    name:
+                        analyzer: 'ik'
+                        type: 'string'
+                    birthday:
+                        type: 'date'
+                        analyzer: 'ik'
+                        doc_values: 'true'
+
+
+                # "birthday": {
+                #     "doc_values": "true", 
+                #     "type": "date", 
+                #     "analyzer": "ik"
+                # }, 
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''

@@ -1,0 +1,131 @@
+
+'select field_1, count(*) as ct from my_index.my_table group by field_1;':
+    ast:
+        type: 'QUERY'
+        c0:
+            type: 'SELECT'
+            c0:
+                type: 'SELEXPR'
+                c0:
+                    type: 'VALUE'
+                    value: 'field_1'
+            c1:
+                type: 'SELEXPR'
+                c0:
+                    type: 'FUNCTION'
+                    value: 'count'
+                    c0:
+                        type: 'VALUE'
+                        value: '*'
+                c1:
+                    type: 'VALUE'
+                    value: 'ct'
+        c1:
+            type: 'FROM'
+            c0:
+                type: 'TABLE_NAME'
+                c0:
+                    type: 'DOT'
+                    c0:
+                        type: 'VALUE'
+                        value: 'my_index'
+                    c1:
+                        type: 'VALUE'
+                        value: 'my_table'
+        c2:
+            type: 'GROUPBY'
+            c0:
+                type: 'VALUE'
+                value: 'field_1'
+    dsl:
+        index: 'my_index'
+        doc_type: 'my_table'
+        _source: [
+            'field_1'
+        ]
+        aggs:
+            field_1:
+                terms:
+                    field: 'field_1'
+                    size: 4096
+        
+
+
+# {
+#     "sort": {}, 
+#     "_source": [
+#         "field_1"
+#     ], 
+#     "fields": [
+#         "_parent"
+#     ], 
+#     "aggs": {
+#         "field_1": {
+#             "terms": {
+#                 "field": "field_1", 
+#                 "size": 4096
+#             }, 
+#             "aggs": {}
+#         }
+#     }, 
+#     "highlight": {}, 
+#     "query": {
+#         "match_all": {}
+#     }
+# }
+
+# 'select count(*) from my_index.my_table group by age;':
+#     ast: 
+#         type: 'QUERY'
+#         c0:
+#             type: 'SELECT'
+#             c0:
+#                 type: 'SELEXPR'
+#                 c0:
+#                     type: 'FUNCTION'
+#                     value: 'count'
+#                     c0:
+#                         type: 'VALUE'
+#                         value: '*'
+#         c1:
+#             type: 'FROM'
+#             c0:
+#                 type: 'TABLE_NAME'
+#                 c0:
+#                     type: 'DOT'
+#                     c0:
+#                         type: 'VALUE'
+#                         value: 'my_index'
+#                     c1:
+#                         type: 'VALUE'
+#                         value: 'my_table'
+#         c2:
+#             type: 'GROUPBY'
+#             c0:
+#                 type: 'VALUE'
+#                 value: 'age'
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
+
+# '':
+#     ast: ''
+#     dsl: ''
