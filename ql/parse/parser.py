@@ -17,7 +17,7 @@ class AutoNumber(Enum):
     
     
     
-class TOKEN(AutoNumber):
+class TK(AutoNumber):
     TOK_IDENTIFIER = ()
     TOK_VALUE = ()
     TOK_DOT = ()
@@ -101,7 +101,7 @@ def p_EXECUTE_STATEMENT(p):
     
 def p_EXPLAIN_STATEMENT(p):
     '''STATEMENT : EXPLAIN STATEMENT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_EXPLAIN,None,[p[2]])
+    p[0] = ASTNode.Node(TK.TOK_EXPLAIN,None,[p[2]])
     
     
 def p_STATEMENT(p):
@@ -121,30 +121,30 @@ def p_STATEMENT(p):
 
 def p_TOK_OPTIONS_OBJECT(p):
     '''TOK_OPTIONS_OBJECT : "(" KV_ELEMENTS_EXPR ")"'''
-    p[0] = ASTNode.Node(TOKEN.TOK_DICT,None,p[2])
+    p[0] = ASTNode.Node(TK.TOK_DICT,None,p[2])
 
 
 def p_TOK_DICT_OBJECT(p):
     '''TOK_DICT_OBJECT : "{" KV_ELEMENTS_EXPR "}"'''
-    p[0] = ASTNode.Node(TOKEN.TOK_DICT,None,p[2])
+    p[0] = ASTNode.Node(TK.TOK_DICT,None,p[2])
 
 
 def p_TOK_LIST_OBJECT(p):
     '''TOK_LIST_OBJECT : "[" VALUES_EXPR "]"
     | "[" "]"'''
     if len(p) == 4:
-        p[0] = ASTNode.Node(TOKEN.TOK_LIST,None,p[2])
+        p[0] = ASTNode.Node(TK.TOK_LIST,None,p[2])
     else:
-        p[0] = ASTNode.Node(TOKEN.TOK_LIST,None,None)
+        p[0] = ASTNode.Node(TK.TOK_LIST,None,None)
 
 
 def p_TOK_TUPLE_OBJECT(p):
     '''TOK_TUPLE_OBJECT : "(" VALUES_EXPR ")"
     | "(" ")"'''
     if len(p) == 4:
-        p[0] = ASTNode.Node(TOKEN.TOK_TUPLE,None,p[2])
+        p[0] = ASTNode.Node(TK.TOK_TUPLE,None,p[2])
     else:
-        p[0] = ASTNode.Node(TOKEN.TOK_TUPLE,None,None)
+        p[0] = ASTNode.Node(TK.TOK_TUPLE,None,None)
         
     
 def p_KV_ELEMENTS_EXPR(p):
@@ -167,14 +167,14 @@ def p_TOK_KEY_VALUE(p):
         pass
     else:
         p[0] = p[1]
-    p[0].set_type(TOKEN.TOK_KEY_VALUE)
+    p[0].set_type(TK.TOK_KEY_VALUE)
 
 
 
 def p_LEFT_RESERVED_VALUES_EXPR(p):
     '''LEFT_RESERVED_VALUES_EXPR :  FROM
     | TO'''
-    p[0] = ASTNode.Node(TOKEN.TOK_VALUE,p[1],None)
+    p[0] = ASTNode.Node(TK.TOK_VALUE,p[1],None)
 
 
  
@@ -215,7 +215,7 @@ def p_VALUE_EXPR(p):
 def p_TOK_DOT(p):
     '''TOK_DOT : TOK_VALUE "." TOK_VALUE
     | TOK_VALUE "." TOK_DOT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_DOT,p[2],[p[1],(p[3])])
+    p[0] = ASTNode.Node(TK.TOK_DOT,p[2],[p[1],(p[3])])
        
        
 def p_TOK_VALUE(p):
@@ -224,14 +224,14 @@ def p_TOK_VALUE(p):
     | NUMBER
     | DQUOTE_STRING
     | "*"'''
-    p[0] = ASTNode.Node(TOKEN.TOK_VALUE,p[1],None)
+    p[0] = ASTNode.Node(TK.TOK_VALUE,p[1],None)
     
 '''=======================================operator define=============================================='''
 
  
 def p_EXPRESSIONS_REVERSED_EXPR(p):
     '''EXPRESSION_EXPR : NOT EXPRESSION_EXPR'''
-    p[0] = ASTNode.Node(TOKEN.TOK_REVERSED,p[1].lower(),[p[2]])
+    p[0] = ASTNode.Node(TK.TOK_REVERSED,p[1].lower(),[p[2]])
     
 
 def p_EXPRESSIONS_GROUP_EXPR(p):
@@ -242,7 +242,7 @@ def p_EXPRESSIONS_GROUP_EXPR(p):
 def p_EXPRESSION_OPERATOR_EXPR(p):
     '''EXPRESSION_EXPR :  EXPRESSION_EXPR OR EXPRESSION_EXPR
     | EXPRESSION_EXPR AND EXPRESSION_EXPR'''
-    p[0] = ASTNode.Node(TOKEN.TOK_COMPLEX,p[2].lower(),[p[1],p[3]])
+    p[0] = ASTNode.Node(TK.TOK_COMPLEX,p[2].lower(),[p[1],p[3]])
 
 
 
@@ -255,10 +255,10 @@ def p_EXPRESSION_EXPR(p):
 def p_TOK_EXPRESSION(p):
     '''TOK_EXPRESSION : LEFT_VALUE_EXPR COMPARE_TYPE_EXPR RIGHT_VALUE_EXPR'''
     if p[2] == '!=':
-        expression = ASTNode.Node(TOKEN.TOK_COMPARE,'=',[p[1],p[3]])
-        p[0] = ASTNode.Node(TOKEN.TOK_REVERSED,'NOT'.lower(),[expression])
+        expression = ASTNode.Node(TK.TOK_COMPARE,'=',[p[1],p[3]])
+        p[0] = ASTNode.Node(TK.TOK_REVERSED,'NOT'.lower(),[expression])
     else:
-        p[0] = ASTNode.Node(TOKEN.TOK_COMPARE,p[2],[p[1],p[3]])
+        p[0] = ASTNode.Node(TK.TOK_COMPARE,p[2],[p[1],p[3]])
 
 
 def p_COMPARE_TYPE_EXPR(p):
@@ -275,12 +275,12 @@ def p_TOK_FUNCTION_EXPR(p):
     
 def p_TOK_FUNCTION(p):
     '''TOK_FUNCTION : VALUE_EXPR TOK_TUPLE_OBJECT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_FUNCTION,p[1].get_value(),p[2].get_children())
+    p[0] = ASTNode.Node(TK.TOK_FUNCTION,p[1].get_value(),p[2].get_children())
     
        
 def p_TOK_BEWTEEN(p):
     '''TOK_BEWTEEN : VALUE_EXPR BETWEEN RIGHT_VALUE_EXPR AND RIGHT_VALUE_EXPR'''
-    p[0] = ASTNode.Node(TOKEN.TOK_FUNCTION,p[2],[p[1],(p[3]),p[5]])
+    p[0] = ASTNode.Node(TK.TOK_FUNCTION,p[2],[p[1],(p[3]),p[5]])
 
 
 
@@ -303,18 +303,18 @@ def p_TOK_CREATE_TABLE_WITH_META(p):
     
 def p_TOK_CREATE_TABLE(p):
     '''TOK_CREATE_TABLE : CREATE TABLE TOK_TABLE_NAME TOK_TABLE_COLS'''
-    p[0] = ASTNode.Node(TOKEN.TOK_CREATE_TABLE,None,[p[3],p[4]])
+    p[0] = ASTNode.Node(TK.TOK_CREATE_TABLE,None,[p[3],p[4]])
     p[0].get_value()
     
     
 def p_TOK_META_OPTIONS(p):
     '''TOK_META_OPTIONS : TOK_OPTIONS_OBJECT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_META_OPTIONS,None,[p[1]])
+    p[0] = ASTNode.Node(TK.TOK_META_OPTIONS,None,[p[1]])
             
     
 def p_TOK_META_DEFINE(p):
     '''TOK_META_DEF : WORD TOK_META_OPTIONS'''
-    p[0] = ASTNode.Node(TOKEN.TOK_META_DEFINE,p[1],[p[2]])
+    p[0] = ASTNode.Node(TK.TOK_META_DEFINE,p[1],[p[2]])
 
 
 def p_TOK_METAS_DEFINE(p):
@@ -328,28 +328,28 @@ def p_TOK_TABLE_METAS(p):
     '''TOK_TABLE_METAS : "(" ")"
     | "(" TOK_METAS_DEF ")"'''
     if len(p) == 3:
-        p[0] = ASTNode.Node(TOKEN.TOK_TABLE_METAS,None,None)
+        p[0] = ASTNode.Node(TK.TOK_TABLE_METAS,None,None)
     else:  
-        p[0] = ASTNode.Node(TOKEN.TOK_TABLE_METAS,None,p[2])
+        p[0] = ASTNode.Node(TK.TOK_TABLE_METAS,None,p[2])
         
         
 def p_TOK_TABLE_OPTIONS(p):
     '''TOK_TABLE_OPTIONS : TOK_OPTIONS_OBJECT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_TABLE_OPTIONS,None,[p[1]])
+    p[0] = ASTNode.Node(TK.TOK_TABLE_OPTIONS,None,[p[1]])
 
 
 def p_TOK_TABLE_NAME(p):
     '''TOK_TABLE_NAME : VALUE_EXPR'''
-    p[0] = ASTNode.Node(TOKEN.TOK_TABLE_NAME,None,[p[1]])
+    p[0] = ASTNode.Node(TK.TOK_TABLE_NAME,None,[p[1]])
 
 
 def p_TOK_TABLE_COLS(p):
     '''TOK_TABLE_COLS : "(" ")"
     | "(" TOK_COLUMNS_DEFINE ")"'''
     if len(p) == 3:
-        p[0] = ASTNode.Node(TOKEN.TOK_TABLE_COLUMNS,None,None)
+        p[0] = ASTNode.Node(TK.TOK_TABLE_COLUMNS,None,None)
     else:  
-        p[0] = ASTNode.Node(TOKEN.TOK_TABLE_COLUMNS,None,p[2])
+        p[0] = ASTNode.Node(TK.TOK_TABLE_COLUMNS,None,p[2])
             
 
 def p_TOK_COLUMNS_DEFINE(p):
@@ -361,7 +361,7 @@ def p_TOK_COLUMNS_DEFINE(p):
 
 def p_COLUMN_TYPE(p):
     '''COLUMN_TYPE : WORD'''
-    p[0] = ASTNode.Node(TOKEN.TOK_CORE_TYPE,p[1],None)
+    p[0] = ASTNode.Node(TK.TOK_CORE_TYPE,p[1],None)
  
  
 def p_TOK_COLUMN_OBJECT_DEFINE(p):
@@ -372,16 +372,16 @@ def p_TOK_COLUMN_OBJECT_DEFINE(p):
 
 def p_p_TOK_COLUMN_OPTIONS(p):
     '''TOK_COLUMN_OPTIONS : TOK_OPTIONS_OBJECT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_COLUMN_OPTIONS,None,[p[1]])
+    p[0] = ASTNode.Node(TK.TOK_COLUMN_OPTIONS,None,[p[1]])
 
 
 def p_TOK_COLUMN_DEFINE(p):
     '''TOK_COLUMN_DEFINE : WORD COLUMN_TYPE
     | WORD COLUMN_TYPE TOK_COLUMN_OPTIONS'''
     if len(p) == 3:
-        p[0] = ASTNode.Node(TOKEN.TOK_COLUMN_DEFINE,p[1],[p[2]])
+        p[0] = ASTNode.Node(TK.TOK_COLUMN_DEFINE,p[1],[p[2]])
     else:
-        p[0] = ASTNode.Node(TOKEN.TOK_COLUMN_DEFINE,p[1],[p[2],p[3]])     
+        p[0] = ASTNode.Node(TK.TOK_COLUMN_DEFINE,p[1],[p[2],p[3]])     
         
       
       
@@ -408,31 +408,31 @@ def p_TOK_QUERY_WITH_LIMITS(p):
         
 def p_TOK_QUERY(p):
     '''TOK_QUERY : SELECT TOK_SELECT FROM TOK_FROM'''
-    p[0] = ASTNode.Node(TOKEN.TOK_QUERY,None,[p[2],p[4]])
+    p[0] = ASTNode.Node(TK.TOK_QUERY,None,[p[2],p[4]])
     
     
 def p_TOK_FROM(p):
     '''TOK_FROM : TOK_TABLE_NAME'''
-    p[0] = ASTNode.Node(TOKEN.TOK_FROM,None,[p[1]])
+    p[0] = ASTNode.Node(TK.TOK_FROM,None,[p[1]])
 
     
 def p_TOK_WHRER(p):
     '''TOK_WHERE : EXPRESSION_EXPR'''
-    p[0] = ASTNode.Node(TOKEN.TOK_WHERE,None,[p[1]])
+    p[0] = ASTNode.Node(TK.TOK_WHERE,None,[p[1]])
                
         
 def p_TOK_SELECT(p):
     '''TOK_SELECT : TOK_SELEXPRS'''
-    p[0] = ASTNode.Node(TOKEN.TOK_SELECT,None,p[1])        
+    p[0] = ASTNode.Node(TK.TOK_SELECT,None,p[1])        
 
 
 def p_TOK_SELEXPR(p):
     '''TOK_SELEXPR : LEFT_VALUE_EXPR
     | LEFT_VALUE_EXPR AS VALUE_EXPR'''
     if len(p) == 2:
-        p[0] = ASTNode.Node(TOKEN.TOK_SELEXPR,None,[p[1]])
+        p[0] = ASTNode.Node(TK.TOK_SELEXPR,None,[p[1]])
     else:
-        p[0] = ASTNode.Node(TOKEN.TOK_SELEXPR,None,[p[1],p[3]])
+        p[0] = ASTNode.Node(TK.TOK_SELEXPR,None,[p[1],p[3]])
 
 def p_TOK_SELEXPRS(p):
     '''TOK_SELEXPRS : TOK_SELEXPR
@@ -443,12 +443,12 @@ def p_TOK_SELEXPRS(p):
 
 def p_TOK_LIMIT(p):
     '''TOK_LIMIT : LIMITS_EXPR'''
-    p[0] = ASTNode.Node(TOKEN.TOK_LIMIT,None,p[1])
+    p[0] = ASTNode.Node(TK.TOK_LIMIT,None,p[1])
     
     
 def p_LIMIT_EXPR(p):
     '''LIMIT_EXPR : NUMBER'''
-    p[0] = ASTNode.Node(TOKEN.TOK_VALUE,p[1],None)
+    p[0] = ASTNode.Node(TK.TOK_VALUE,p[1],None)
  
  
 def p_LIMITS_EXPR(p):
@@ -462,7 +462,7 @@ def p_LIMITS_EXPR(p):
         
 def p_TOK_ORDERBY(p):
     '''TOK_ORDERBY : TOK_SORTS'''
-    p[0] = ASTNode.Node(TOKEN.TOK_ORDERBY,None,p[1])        
+    p[0] = ASTNode.Node(TK.TOK_ORDERBY,None,p[1])        
 
 
 def p_TOK_SORTS(p):
@@ -475,16 +475,16 @@ def p_TOK_SORTS(p):
 def p_SORT_MODE(p):
     '''SORT_MODE : ASC
     | DESC'''
-    p[0] = ASTNode.Node(TOKEN.TOK_SORT_MODE,p[1],None)     
+    p[0] = ASTNode.Node(TK.TOK_SORT_MODE,p[1],None)     
     
     
 def p_TOK_SORT(p):
     '''TOK_SORT : LEFT_VALUE_EXPR
     | LEFT_VALUE_EXPR SORT_MODE'''
     if len(p) == 2: 
-        p[0] = ASTNode.Node(TOKEN.TOK_SORT,None,[p[1]])   
+        p[0] = ASTNode.Node(TK.TOK_SORT,None,[p[1]])   
     else:
-        p[0] = ASTNode.Node(TOKEN.TOK_SORT,None,[p[1],p[2]])  
+        p[0] = ASTNode.Node(TK.TOK_SORT,None,[p[1],p[2]])  
     
     
     
@@ -499,7 +499,7 @@ def p_TOK_QUERY_WITH_GROUPBY(p):
         
 def p_TOK_GROUPBY(p):
     '''TOK_GROUPBY : LEFT_VALUES_EXPR'''
-    p[0] = ASTNode.Node(TOKEN.TOK_GROUPBY,None,p[1])    
+    p[0] = ASTNode.Node(TK.TOK_GROUPBY,None,p[1])    
     
     
     
@@ -507,23 +507,23 @@ def p_TOK_GROUPBY(p):
 
 def p_TOK_INSERT_INTO(p):
     '''TOK_INSERT_INTO : INSERT INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROW'''
-    p[0] = ASTNode.Node(TOKEN.TOK_INSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
+    p[0] = ASTNode.Node(TK.TOK_INSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
     
       
   
 def p_TOK_INSERT_COLUMNS(p):
     '''TOK_INSERT_COLUMNS : TOK_TUPLE_OBJECT'''
-    p[0] = ASTNode.Node(TOKEN.TOK_INSERT_COLUMNS,None,p[1].get_children())      
+    p[0] = ASTNode.Node(TK.TOK_INSERT_COLUMNS,None,p[1].get_children())      
     
          
 def p_TOK_INSERT_ROW(p):
     '''TOK_VALUE_ROW : "(" RIGHT_VALUES_EXPR ")" '''
-    p[0] = ASTNode.Node(TOKEN.TOK_INSERT_ROW,None,p[2])  
+    p[0] = ASTNode.Node(TK.TOK_INSERT_ROW,None,p[2])  
 
     
 def p_TOK_BULK_ROWS(p):
     '''TOK_BULK_ROWS : "[" INSERT_ROWS_EXPR "]" '''
-    p[0] = ASTNode.Node(TOKEN.TOK_INSERT_ROWS,None,p[2])  
+    p[0] = ASTNode.Node(TK.TOK_INSERT_ROWS,None,p[2])  
  
  
 def p_INSERT_ROWS_EXPR(p):
@@ -535,28 +535,28 @@ def p_INSERT_ROWS_EXPR(p):
  
 def p_TOK_BULK_INTO(p):
     '''TOK_BULK_INTO : BULK INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_BULK_ROWS'''
-    p[0] = ASTNode.Node(TOKEN.TOK_BULK_INTO,None,[p[3]] + [p[4]] + [p[6]])
+    p[0] = ASTNode.Node(TK.TOK_BULK_INTO,None,[p[3]] + [p[4]] + [p[6]])
     
 
 def p_TOK_UPDATE(p):
     '''TOK_UPDATE : UPDATE TOK_TABLE_NAME SET TOK_SET_COLUMNS_CLAUSE WHERE TOK_WHERE'''
-    p[0] = ASTNode.Node(TOKEN.TOK_UPDATE,None,[p[2]] + [p[4]] + [p[6]])
+    p[0] = ASTNode.Node(TK.TOK_UPDATE,None,[p[2]] + [p[4]] + [p[6]])
 
 
 def p_TOK_SET_COLUMNS(p):
     '''TOK_SET_COLUMNS_CLAUSE : KV_ELEMENTS_EXPR'''
-    p[0] = ASTNode.Node(TOKEN.TOK_SET_COLUMNS_CLAUSE,None,p[1])
+    p[0] = ASTNode.Node(TK.TOK_SET_COLUMNS_CLAUSE,None,p[1])
     
     
     
 def p_TOK_UPSERT_INTO(p):
     '''TOK_UPSERT_INTO : UPSERT INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROW'''
-    p[0] = ASTNode.Node(TOKEN.TOK_UPSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
+    p[0] = ASTNode.Node(TK.TOK_UPSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
     
     
 def p_TOK_DELETE(p):
     '''TOK_DELETE : DELETE FROM TOK_TABLE_NAME WHERE TOK_WHERE'''
-    p[0] = ASTNode.Node(TOKEN.TOK_DELETE,None,[p[3]] + [p[5]])    
+    p[0] = ASTNode.Node(TK.TOK_DELETE,None,[p[3]] + [p[5]])    
     
     
     
