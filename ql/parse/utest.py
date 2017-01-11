@@ -21,7 +21,7 @@ if __name__ == "__main__":
        
     parser=yacc(debug=True,module=parser)
      
-    if len(sys.argv) <= 2:
+    if len(sys.argv) < 2:
         
         
         sqls = [
@@ -80,4 +80,4 @@ if __name__ == "__main__":
             val.to_string()
     else: 
         val = parser.parse(lexer=lexer.clone(),debug=False,input=sys.argv[1])
-        val.toStringTree()
+        val.to_string()
