@@ -63,20 +63,3 @@ class Node(object):
                     if child.type == _type:
                         return child
         return _sub_type(self, child_type)
-
-    def dict(self):
-        """ Generate serializable dict for unit test
-        """
-        from ql.parse.parser import TK
-        name = self.type.name
-        ret = OrderedDict({'type': name[4:] if name.startswith('TOK_') else name})
-
-        if self.value and self.type not in [TK.TOK_DOT, TK.TOK_KEY_VALUE]:
-            ret['value'] = self.value
-
-        if self.children:
-            children_index = 0
-            for item in self.children:
-                ret['c%d' % children_index] = item.dict()
-                children_index += 1
-        return ret
