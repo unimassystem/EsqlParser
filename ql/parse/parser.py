@@ -258,7 +258,7 @@ def p_TOK_EXPRESSION(p):
         expression = ASTNode.Node(TK.TOK_COMPARE,'=',[p[1],p[3]])
         p[0] = ASTNode.Node(TK.TOK_REVERSED,'NOT'.lower(),[expression])
     else:
-        p[0] = ASTNode.Node(TK.TOK_COMPARE,p[2],[p[1],p[3]])
+        p[0] = ASTNode.Node(TK.TOK_COMPARE,p[2].lower(),[p[1],p[3]])
 
 
 def p_COMPARE_TYPE_EXPR(p):
@@ -275,12 +275,12 @@ def p_TOK_FUNCTION_EXPR(p):
     
 def p_TOK_FUNCTION(p):
     '''TOK_FUNCTION : VALUE_EXPR TOK_TUPLE_OBJECT'''
-    p[0] = ASTNode.Node(TK.TOK_FUNCTION,p[1].get_value(),p[2].get_children())
+    p[0] = ASTNode.Node(TK.TOK_FUNCTION,p[1].get_value().lower(),p[2].get_children())
     
        
 def p_TOK_BEWTEEN(p):
     '''TOK_BEWTEEN : VALUE_EXPR BETWEEN RIGHT_VALUE_EXPR AND RIGHT_VALUE_EXPR'''
-    p[0] = ASTNode.Node(TK.TOK_FUNCTION,p[2],[p[1],(p[3]),p[5]])
+    p[0] = ASTNode.Node(TK.TOK_FUNCTION, p[2].lower() ,[p[1],(p[3]),p[5]])
 
 
 
@@ -361,7 +361,7 @@ def p_TOK_COLUMNS_DEFINE(p):
 
 def p_COLUMN_TYPE(p):
     '''COLUMN_TYPE : WORD'''
-    p[0] = ASTNode.Node(TK.TOK_CORE_TYPE,p[1],None)
+    p[0] = ASTNode.Node(TK.TOK_CORE_TYPE, p[1].lower(), None)
  
  
 def p_TOK_COLUMN_OBJECT_DEFINE(p):

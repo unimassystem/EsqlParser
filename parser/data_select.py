@@ -1,65 +1,6 @@
 from typing import List
-from parser import TK, Node, Element, AttributeList, TableName
-
-
-class FieldDefine(Element):
-    __slots__ = ('name', 'type', 'options', 'fields')
-
-    def __init__(self, tree: Node):
-        if tree.type == TK.TOK_COLUMN_DEFINE:
-            self.name = tree.value
-            self.type = tree.sub(0).value
-            if self.type == 'object':
-                cols = tree.sub_token(TK.TOK_TABLE_COLUMNS)
-                if cols and cols.children:
-                    self.fields = FieldsDefine(cols.children)
-            opts = tree.sub_token(TK.TOK_COLUMN_OPTIONS)
-            if opts:
-                self.options = AttributeList(opts.sub(0).children)
-
-    def dsl(self):
-        field = {'type': self.type}
-        if hasattr(self, 'options'):
-            for option in self.options:
-                field[option.key] = option.value
-        if hasattr(self, 'fields'):
-            field['properties'] = self.fields.dsl()
-        return field
-
-
-class FieldsDefine(List[FieldDefine]):
-
-    def __init__(self, fields):
-        for field in fields:
-            self.append(FieldDefine(field))
-
-    def dsl(self):
-        properties = {}
-        for field in self:
-            properties[field.name] = field.dsl()
-        return properties
-
-
-class TableCreate(Element):
-    """ Create Table
-    """
-    __slots__ = ('table', 'fields')
-
-    mapping = TK.TOK_CREATE_TABLE
-
-    def __init__(self, tree: Node = None):
-        for child in tree.children:
-            if child.type == TK.TOK_TABLE_NAME:
-                self.table = TableName(child.children)
-            elif child.type == TK.TOK_TABLE_COLUMNS:
-                self.fields = FieldsDefine(child.children)
-
-    def dsl(self):
-        ret = {'index': self.table.index_name,
-               'doc_type': self.table.doc_type,
-               'body': {self.table.doc_type: {}}}
-        ret['body'][self.table.doc_type]['properties'] = self.fields.dsl()
-        return ret
+from parser import TK, Node, Element, TableName
+from parser.utility import *
 
 
 class SelectField(Element):
@@ -85,7 +26,7 @@ class SelectFields(List[SelectField]):
             self.append(SelectField(item))
 
     def dsl(self):
-        properties = {'aaa':1}
+        properties = {}
         for item in self:
             properties[item.name] = item.dsl()
         return properties
@@ -104,10 +45,73 @@ class GroupByFields(list):
         return properties
 
 
+class Compare(Element):
+    __slots__ = ('operate', 'left', 'right')
+
+    def __init__(self, tree: Node):
+        self.operate = tree.value
+        self.left = tree.sub(0).value
+        self.right = tree.sub(1).value
+
+    def dsl(self):
+        ret = {}
+        if self.operate == '=':
+            ret['query_string'] = {self.left: self.right}
+        if self.operate == 'like':
+            ret['wildcard'] = {self.left: self.right}
+        return ret
+
+
+def gen_function_dsl(rst):
+    ret = {}
+    if rst.name == 'between':
+        ret['range'] = {rst.params[0]: {'gte': rst.params[1], 'lte': rst.params[2]}}
+    return ret
+
+
+class Function(Element):
+    __slots__ = ('name', 'params')
+
+    def __init__(self, tree: Node):
+        self.name = tree.value
+        self.params = []
+        for item in tree.children:
+            self.params.append(item.value)
+
+    def dsl(self):
+        return gen_function_dsl(self)
+
+
+def gen_complex_child(tree):
+    if tree.type == TK.TOK_COMPLEX:
+        return Complex(tree)
+    elif tree.type == TK.TOK_FUNCTION:
+        return Function(tree)
+    else:
+        return Compare(tree)
+
+
+class Complex(Element):
+    __slots__ = ('operate', 'left', 'right')
+
+    def __init__(self, tree: Node):
+        self.operate = tree.value
+        self.left = gen_complex_child(tree.sub(0))
+        self.right = gen_complex_child(tree.sub(1))
+
+    def dsl(self):
+        ret = {'bool': {}}
+        key = 'must'
+        if self.operate == 'or':
+            key = 'should'
+        ret['bool'][key] = [self.left.dsl(), self.right.dsl()]
+        return ret
+
+
 class DataSelect(Element):
     """ Data Query (Select)
     """
-    __slots__ = ('table', 'select', 'group_by')
+    __slots__ = ('table', 'select', 'where', 'group_by')
     
     mapping = TK.TOK_QUERY
 
@@ -119,6 +123,8 @@ class DataSelect(Element):
                 self.table = TableName(child.sub_token(TK.TOK_TABLE_NAME).children)
             elif child.type == TK.TOK_GROUPBY:
                 self.group_by = GroupByFields(child.children)
+            elif child.type == TK.TOK_WHERE:
+                self.where = Complex(child.sub(0))
 
     def dsl(self):
         ret = {'index': self.table.index_name,
@@ -127,6 +133,8 @@ class DataSelect(Element):
         for item in self.select:
             if item.type == TK.TOK_VALUE:
                 ret['_source'].append(item.name)
+        if hasattr(self, 'where'):
+            ret['query'] = self.where.dsl()
         if hasattr(self, 'group_by'):
             ret['aggs'] = self.group_by.dsl()
         return ret
