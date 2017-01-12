@@ -1,5 +1,5 @@
 import sys
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 from ply.lex import lex
 from ply.yacc import yacc
 
@@ -88,11 +88,32 @@ class Attribute(Element):
             self.value = tree.sub(1).value
 
 
-class Attributes(List[Attribute]):
+class AttributeList(List[Attribute]):
 
     def __init__(self, attributes):
         for attribute in attributes:
             self.append(Attribute(attribute))
+
+
+class AttributeDict(Dict):
+
+    def __init__(self, attributes):
+        for attribute in attributes:
+            item = Attribute(attribute)
+            self[item.key] = item.value
+
+    def dsl(self):
+        return dict(self)
+
+
+class ItemList(list):
+
+    def __init__(self, items):
+        for item in items:
+            if item.type == TK.TOK_VALUE:
+                self.append(item.value)
+            elif item.type == TK.TOK_DICT:
+                self.append(AttributeDict(item.children))
 
 
 class TableName(Element):

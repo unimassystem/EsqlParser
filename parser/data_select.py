@@ -1,11 +1,11 @@
 from typing import List
-from parser import TK, Node, Element, Attributes, TableName
+from parser import TK, Node, Element, AttributeList, TableName
 
 
 class FieldDefine(Element):
     __slots__ = ('name', 'type', 'options', 'fields')
 
-    def __init__(self, tree: Node = None):
+    def __init__(self, tree: Node):
         if tree.type == TK.TOK_COLUMN_DEFINE:
             self.name = tree.value
             self.type = tree.sub(0).value
@@ -15,7 +15,7 @@ class FieldDefine(Element):
                     self.fields = FieldsDefine(cols.children)
             opts = tree.sub_token(TK.TOK_COLUMN_OPTIONS)
             if opts:
-                self.options = Attributes(opts.sub(0).children)
+                self.options = AttributeList(opts.sub(0).children)
 
     def dsl(self):
         field = {'type': self.type}
@@ -47,10 +47,7 @@ class TableCreate(Element):
 
     mapping = TK.TOK_CREATE_TABLE
 
-    def __init__(self, tree: Node, table: TableName = None, fields: List[FieldDefine] = None):
-        self.table = table
-        self.fields = fields or []
-
+    def __init__(self, tree: Node = None):
         for child in tree.children:
             if child.type == TK.TOK_TABLE_NAME:
                 self.table = TableName(child.children)
@@ -58,17 +55,17 @@ class TableCreate(Element):
                 self.fields = FieldsDefine(child.children)
 
     def dsl(self):
-        dsl = {'index': self.table.index_name,
+        ret = {'index': self.table.index_name,
                'doc_type': self.table.doc_type,
                'body': {self.table.doc_type: {}}}
-        dsl['body'][self.table.doc_type]['properties'] = self.fields.dsl()
-        return dsl
+        ret['body'][self.table.doc_type]['properties'] = self.fields.dsl()
+        return ret
 
 
 class SelectField(Element):
     __slots__ = ('name', 'type', 'params')
 
-    def __init__(self, tree: Node = None):
+    def __init__(self, tree: Node):
         self.name = tree.sub(0).value
         self.type = tree.sub(0).type
         if tree.sub(0).type == TK.TOK_FUNCTION:
@@ -114,10 +111,7 @@ class DataSelect(Element):
     
     mapping = TK.TOK_QUERY
 
-    def __init__(self, tree: Node, table: TableName = None, select: List[FieldDefine] = None):
-        self.table = table
-        self.select = select or []
-
+    def __init__(self, tree: Node):
         for child in tree.children:
             if child.type == TK.TOK_SELECT:
                 self.select = SelectFields(child.children)
@@ -127,13 +121,12 @@ class DataSelect(Element):
                 self.group_by = GroupByFields(child.children)
 
     def dsl(self):
-        dsl = {'index': self.table.index_name,
+        ret = {'index': self.table.index_name,
                'doc_type': self.table.doc_type,
                '_source': []}
         for item in self.select:
             if item.type == TK.TOK_VALUE:
-                dsl['_source'].append(item.name)
+                ret['_source'].append(item.name)
         if hasattr(self, 'group_by'):
-            dsl['aggs'] = self.group_by.dsl()
-
-        return dsl
+            ret['aggs'] = self.group_by.dsl()
+        return ret

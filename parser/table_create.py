@@ -1,5 +1,5 @@
 from typing import List
-from parser import TK, Node, Element, Attributes, TableName
+from parser import TK, Node, Element, AttributeList, TableName
 
 
 class FieldDefine(Element):
@@ -15,7 +15,7 @@ class FieldDefine(Element):
                     self.fields = FieldsDefine(cols.children)
             opts = tree.sub_token(TK.TOK_COLUMN_OPTIONS)
             if opts:
-                self.options = Attributes(opts.sub(0).children)
+                self.options = AttributeList(opts.sub(0).children)
 
     def dsl(self):
         field = {'type': self.type}
@@ -57,8 +57,8 @@ class TableCreate(Element):
                 self.fields = FieldsDefine(child.children)
 
     def dsl(self):
-        dsl = {'index': self.table.index_name,
+        ret = {'index': self.table.index_name,
                'doc_type': self.table.doc_type,
                'body': {self.table.doc_type: {}}}
-        dsl['body'][self.table.doc_type]['properties'] = self.fields.dsl()
-        return dsl
+        ret['body'][self.table.doc_type]['properties'] = self.fields.dsl()
+        return ret
