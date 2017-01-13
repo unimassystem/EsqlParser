@@ -9,7 +9,7 @@ class DataInsert(Element):
     mapping = TK.TOK_INSERT_INTO
 
     def __init__(self, tree: Node):
-        self.table = TableName(tree.sub(0).children)
+        self.table = TableName(tree.sub(0).sub(0))
         self.fields = ItemList(tree.sub(1).children)
         self.values = ItemList(tree.sub(2).children)
         self.field_count = len(self.fields)

@@ -52,7 +52,7 @@ class TableCreate(Element):
 
         for child in tree.children:
             if child.type == TK.TOK_TABLE_NAME:
-                self.table = TableName(child.children)
+                self.table = TableName(child.sub(0))
             elif child.type == TK.TOK_TABLE_COLUMNS:
                 self.fields = FieldsDefine(child.children)
 

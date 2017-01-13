@@ -120,7 +120,9 @@ class TableName(Element):
     __slots__ = ('index_name', 'doc_type')
 
     def __init__(self, tree):
-        for item in tree:
-            if item.type == TK.TOK_DOT:
-                self.index_name = item.sub(0).value
-                self.doc_type = item.sub(1).value
+        if tree.type == TK.TOK_DOT:
+            self.index_name = tree.sub(0).value
+            self.doc_type = tree.sub(1).value
+        elif tree.type == TK.TOK_VALUE:
+            self.index_name = tree.value
+            self.doc_type = None

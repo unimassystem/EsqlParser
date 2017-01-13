@@ -95,16 +95,22 @@ class Complex(Element):
     __slots__ = ('operate', 'left', 'right')
 
     def __init__(self, tree: Node):
-        self.operate = tree.value
-        self.left = gen_complex_child(tree.sub(0))
-        self.right = gen_complex_child(tree.sub(1))
+        if tree.type == TK.TOK_COMPARE:
+            self.operate = 'and'
+            self.left = gen_complex_child(tree)
+        elif tree.type == TK.TOK_COMPLEX:
+            self.operate = tree.value
+            self.left = gen_complex_child(tree.sub(0))
+            self.right = gen_complex_child(tree.sub(1))
 
     def dsl(self):
         ret = {'bool': {}}
         key = 'must'
         if self.operate == 'or':
             key = 'should'
-        ret['bool'][key] = [self.left.dsl(), self.right.dsl()]
+        ret['bool'][key] = [self.left.dsl()]
+        if hasattr(self, 'right'):
+            ret['bool'][key].append(self.right.dsl())
         return ret
 
 
@@ -120,10 +126,14 @@ class DataSelect(Element):
             if child.type == TK.TOK_SELECT:
                 self.select = SelectFields(child.children)
             elif child.type == TK.TOK_FROM:
-                self.table = TableName(child.sub_token(TK.TOK_TABLE_NAME).children)
+                self.table = TableName(child.sub_token(TK.TOK_TABLE_NAME).sub(0))
             elif child.type == TK.TOK_GROUPBY:
                 self.group_by = GroupByFields(child.children)
             elif child.type == TK.TOK_WHERE:
+                # if child.sub(0).type == TK.TOK_COMPARE:
+                #     self.where = Compare(child.sub(0))
+                # elif child.sub(0).type == TK.TOK_COMPLEX:
+                #     self.where = Complex(child.sub(0))
                 self.where = Complex(child.sub(0))
 
     def dsl(self):
