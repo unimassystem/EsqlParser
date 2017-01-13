@@ -3,16 +3,15 @@ Created on Dec 23, 2016
 
 @author: qs
 '''
-# -*- coding: utf-8 -*- 
-
-
-
+import sys
+import json
 
 from ql.parse import lexer
 from ql.parse import parser
 from ply.lex import  lex
 from ply.yacc import yacc
-import sys
+
+from parser import init, Processor
 
 
 if __name__ == "__main__":
@@ -81,3 +80,5 @@ if __name__ == "__main__":
     else: 
         val = parser.parse(lexer=lexer.clone(),debug=False,input=sys.argv[1])
         val.to_string()
+        init(False, False)
+        print(json.dumps(Processor.execute(sys.argv[1]), indent=4))
