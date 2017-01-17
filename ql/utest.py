@@ -14,8 +14,7 @@ from ply.lex import  lex
 from ply.yacc import yacc
 import sys
 from ql.dsl.Query import Query
-from test.test_sys_setprofile import ident
-
+import json
 
 if __name__ == "__main__":
 
@@ -85,9 +84,12 @@ if __name__ == "__main__":
             val.debug()
             print('-----------------------华丽分割----------------------------------')
             query = Query(val)
-            import json
+
             print(json.dumps(query.dsl(),indent=4))
                 
     else: 
         val = parser.parse(lexer=lexer.clone(),debug=False,input=sys.argv[1])
         val.debug()
+        print('-----------------------华丽分割----------------------------------')
+        query = Query(val)
+        print(json.dumps(query.dsl(),indent=4))

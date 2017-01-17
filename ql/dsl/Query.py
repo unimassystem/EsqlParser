@@ -66,10 +66,14 @@ class Query(object):
 
     def dsl(self):
         dsl_body = {'query':{}}
-        dsl_body['query'] = self.query_body.dsl()
-        dsl_body['from'] = self._from
-        dsl_body['size'] = self._size
-        dsl_body['sort'] = self.sorts
+        if hasattr(self, 'query_body'):
+            dsl_body['query'] = self.query_body.dsl()
+        if hasattr(self, '_from'):
+            dsl_body['from'] = self._from
+        if hasattr(self, '_size'):
+            dsl_body['size'] = self._size
+        if hasattr(self, 'sorts'):
+            dsl_body['sort'] = self.sorts
         return dsl_body
     
     
