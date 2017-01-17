@@ -16,6 +16,8 @@ reserved = {
     'set': 'SET',
     'from': 'FROM',
     'to': 'TO',
+    'is': 'IS',
+    'null': 'NULL',
     'where': 'WHERE',
     'into': 'INTO',
     'values': 'VALUES',

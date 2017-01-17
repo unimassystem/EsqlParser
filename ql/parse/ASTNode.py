@@ -4,8 +4,6 @@ Created on Dec 26, 2016
 @author: unimas
 '''
 
-from collections import OrderedDict
-
 
 class Node(object):
     __slots__ = ('type','value','children')
@@ -27,13 +25,16 @@ class Node(object):
     def get_children_count(self):
         return len(self.children)
 
+    def get_child(self,index):
+        return self.children[index]
+
     def get_children(self):
         return self.children
 
     def append_children(self,val):
         self.children.append(val)
     
-    def to_string(self,depth=0):
+    def debug(self,depth=0):
         tab = ''
         for i in range(depth):
             i = i
@@ -44,22 +45,7 @@ class Node(object):
         if(self.children != None):
             depth += 1
             for node in self.get_children():
-                node.to_string(depth)
+                node.debug(depth)
         print(tab + ')')
 
-    def sub(self, index):
-        """ Get child by index
-        """
-        def _sub(elm, _index) -> Node:  # provide convenience for coding
-            return elm.children[_index]
-        return _sub(self, index)
 
-    def sub_token(self, child_type):
-        """ Get child by it's token type
-        """
-        def _sub_type(elm, _type) -> Node:  # provide convenience for coding
-            if elm.children:
-                for child in elm.children:
-                    if child.type == _type:
-                        return child
-        return _sub_type(self, child_type)
