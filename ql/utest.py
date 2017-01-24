@@ -23,8 +23,6 @@ if __name__ == "__main__":
     parser=yacc(debug=True,module=parser)
      
     if len(sys.argv) < 2:
-        
-        
         sqls = [
 #         '''create table my_tb (
 #             a text,b integer, 
@@ -44,7 +42,7 @@ if __name__ == "__main__":
 #          
 #        '''select strcat(a,b),c.raw from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) and length(a.raw) > 10 and strcat(f.raw,b) limit 0,10 order by a asc,b,c desc;''',
 #        '''select * from my_index where a = hello;''',
-        '''select city.raw from my_index where city is not null and city = '3717' limit 1,2 order by city;''',
+        '''select * from my_index where city is not null and city = '3717'  and city between 3717 and 3718 limit 1,2 order by city group by data_histogram(a,{interval=10});''',
         
 #   
 #          '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',

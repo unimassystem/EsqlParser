@@ -7,7 +7,28 @@ Created on Jan 17, 2017
 from ql.parse.ASTNode import Node
 from ql.parse.parser import TK
 from ql.dsl.QueryBody import QueryBody
-from ql.dsl import parse_table_name
+from ql.dsl import parse_table_name,parse_value,parse_right_values
+
+
+
+class FunctionXpr(object):
+    __slots__ = ('function_name','function_parms')
+    def __init__(self,tree: Node):
+        self.function_name = tree.get_value()
+        self.function_parms = parse_right_values(tree.get_children())
+
+
+class Selexpr(object):
+    __slots__ = ('selexpr','alias')
+    def __init__(self,tree: Node):
+        if tree.get_child(0).get_type() == TK.TOK_FUNCTION:
+            self.selexpr = FunctionXpr(tree.get_child(0))
+        else:
+            self.selexpr = parse_value(tree.get_child(0))
+        if tree.get_children_count() == 2:
+            self.alias = parse_value(tree.get_child(1))
+
+
 
 def parse_tok_from(tree : Node):
     if tree.get_type() == TK.TOK_TABLE_NAME:
@@ -40,12 +61,27 @@ def parse_tok_sorts(tree : Node):
     return sorts
 
 
+
 def parse_tok_selexpr(tree : Node):
-    pass
+    retval = []
+    for e in tree.get_children():
+        retval.append(Selexpr(e))
+    return retval
+
+
+def get_source(selexprs):
+    retval = []
+    for e in selexprs:
+        if type(e.selexpr) == str:
+            retval.append(e.selexpr)
+    return retval
+            
+
+
 
 class Query(object):
     
-    __slots__ = ('_index','_type','query_body','_from','_size','sorts','selexpr')
+    __slots__ = ('_index','_type','query_body','_from','_size','sorts','selexpr','groupby')
     def __init__(self,tree: Node):
         for element in tree.get_children():
                         
@@ -53,7 +89,7 @@ class Query(object):
                 (self._index,self._type) = parse_tok_from(element.get_child(0))
                 
             if element.get_type() == TK.TOK_SELECT:
-                self.selexpr = parse_tok_selexpr(element.get_child(0))
+                self.selexpr = parse_tok_selexpr(element)
                 
             if element.get_type() == TK.TOK_WHERE:
                 self.query_body = QueryBody(element.get_child(0))
@@ -74,6 +110,9 @@ class Query(object):
             dsl_body['size'] = self._size
         if hasattr(self, 'sorts'):
             dsl_body['sort'] = self.sorts
+        if hasattr(self, 'selexpr'):
+            dsl_body['_source'] = get_source(self.selexpr)   
+            
         return dsl_body
     
     

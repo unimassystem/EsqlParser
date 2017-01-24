@@ -4,7 +4,9 @@ Created on Jan 13, 2017
 @author: qs
 '''
 
-from ql.dsl import *
+from ql.dsl import parse_left_values,parse_right_values,parse_value
+from ql.parse.ASTNode import Node
+from ql.parse.parser import TK
 
 def query_string_query(left_val,right_val):
     return {
