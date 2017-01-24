@@ -132,25 +132,60 @@ or:
 
 Console:
 
-    python -m ql.parse.utest "select * from my_index;"
+    python -m python -m ql.utest "select * from my_index where age >= 20;"
 
 
-    (TOK_QUERY
-	    (TOK_SELECT
-		    (TOK_SELEXPR
-			    (TOK_VALUE
-			    	*
-			    )
-		    )
-	    )
-	    (TOK_FROM
-		    (TOK_TABLE_NAME
-		    	(TOK_VALUE
-			   	my_index
-			    )
-		    )
-	    )
-    )
+	(TOK_QUERY
+		(TOK_SELECT
+			(TOK_SELEXPR
+				(TOK_VALUE
+					*
+				)
+			)
+		)
+		(TOK_FROM
+			(TOK_TABLE_NAME
+				(TOK_VALUE
+					my_index
+				)
+			)
+		)
+		(TOK_WHERE
+			(TOK_COMPARE
+				>=
+				(TOK_EXPRESSION_LEFT
+					(TOK_VALUE
+						age
+					)
+				)
+				(TOK_EXPRESSION_RIGHT
+					(TOK_VALUE
+						20
+					)
+				)
+			)
+		)
+	)
+	-----------------------华丽分割----------------------------------
+	{
+	    "query": {
+	        "bool": {
+	            "must": [
+	                {
+	                    "range": {
+	                        "age": {
+	                            "gte": "20"
+	                        }
+	                    }
+	                }
+	            ]
+	        }
+	    },
+	    "_source": [
+	        "*"
+	    ]
+	}
+
 
 
 
