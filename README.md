@@ -197,8 +197,25 @@ Console:
 	(TOK_QUERY
 		(TOK_SELECT
 			(TOK_SELEXPR
+				(TOK_FUNCTION
+					count
+					(TOK_VALUE
+						*
+					)
+				)
 				(TOK_VALUE
-					*
+					c
+				)
+			)
+			(TOK_SELEXPR
+				(TOK_FUNCTION
+					sum
+					(TOK_VALUE
+						age
+					)
+				)
+				(TOK_VALUE
+					total
 				)
 			)
 		)
@@ -244,20 +261,28 @@ Console:
 	    "query": {
 	        "match_all": {}
 	    },
-	    "_source": [
-	        "*"
-	    ],
+	    "_source": [],
 	    "aggs": {
 	        "timestamp": {
 	            "date_histogram": {
 	                "field": "timestamp",
 	                "interval": "12h"
 	            },
-	            "aggs": {}
+	            "aggs": {
+	                "c": {
+	                    "value_count": {}
+	                },
+	                "total": {
+	                    "sum": {
+	                        "field": "age"
+	                    }
+	                }
+	            }
 	        }
 	    },
 	    "size": 0
 	}
+
 
 
 
