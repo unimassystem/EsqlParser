@@ -132,7 +132,7 @@ or:
 
 Console:
 
-    python -m python -m ql.utest "select * from my_index where age >= 20;"
+    python -m ql.utest "select * from my_index where age >= 20;"
 
 
 	(TOK_QUERY
@@ -190,8 +190,72 @@ Console:
 
 
 
-
-
+	python -m ql.utest  "select * from my_table.my_index group by date_histogram(timestamp,{interval='12h'});"
+	
+	(TOK_QUERY
+		(TOK_SELECT
+			(TOK_SELEXPR
+				(TOK_VALUE
+					*
+				)
+			)
+		)
+		(TOK_FROM
+			(TOK_TABLE_NAME
+				(TOK_DOT
+					.
+					(TOK_VALUE
+						my_table
+					)
+					(TOK_VALUE
+						my_index
+					)
+				)
+			)
+		)
+		(TOK_GROUPBY
+			(TOK_FUNCTION
+				date_histogram
+				(TOK_VALUE
+					timestamp
+				)
+				(TOK_DICT
+					(TOK_KEY_VALUE
+						=
+						(TOK_EXPRESSION_LEFT
+							(TOK_VALUE
+								interval
+							)
+						)
+						(TOK_EXPRESSION_RIGHT
+							(TOK_VALUE
+								12h
+							)
+						)
+					)
+				)
+			)
+		)
+	)
+	-----------------------华丽分割----------------------------------
+	{
+	    "query": {
+	        "match_all": {}
+	    },
+	    "_source": [
+	        "*"
+	    ],
+	    "aggs": {
+	        "timestamp": {
+	            "date_histogram": {
+	                "field": "timestamp",
+	                "interval": "12h"
+	            },
+	            "aggs": {}
+	        }
+	    },
+	    "size": 0
+	}
 
 
 
