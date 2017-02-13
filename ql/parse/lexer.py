@@ -72,18 +72,18 @@ def t_NUMBER(t):
 
 
 def t_QUOTE_STRING(t):
-    r"'[^\']*'"
+    r"'((?<=\\)\'|[^\'])*'"
     t.value = t.value[1:-1]
     return t
 
 
 def t_DQUOTE_STRING(t):
-    r'"[^\"]*"'
-    #    t.value = t.value[1:-1]
+    r'"((?<=\\)\"|[^\"])*"'
     return t
 
 
 def t_error(t):
+    print(t.value)
     raise Exception("Illegal character '%s'", t.value[0])
     t.lexer.skip(1)
     

@@ -17,7 +17,7 @@ from ql.dsl.Query import Query
 import json
 
 if __name__ == "__main__":
-
+    
     lexer=lex(module=lexer,optimize=True,debug=True)
        
     parser=yacc(debug=True,module=parser)
@@ -42,8 +42,11 @@ if __name__ == "__main__":
 #          
 #        '''select strcat(a,b),c.raw from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) and length(a.raw) > 10 and strcat(f.raw,b) limit 0,10 order by a asc,b,c desc;''',
 #        '''select * from my_index where a = hello;''',
-        '''select * from my_index where city is not null and city = '3717'  and city between 3717 and 3718 limit 1,2 order by city group by data_histogram(a,{interval=10});''',
+        '''select * from my_index where city is not null and city = '\\'my_hello\\'hello'  and city between 3717 and 3718 order by city group by 
+        data_range(a,{format='MM-yyyy'},{ranges=[{to = 'now-10M/M' },{from =  'now-10M/M'}]}),b limit 1000;''',
         
+        '''select * from my_index group by a,_type;''',
+
 #   
 #          '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
 #   
@@ -78,11 +81,12 @@ if __name__ == "__main__":
         ]
 
         for sql in sqls:
+                
             val = parser.parse(lexer=lexer.clone(),debug=False,input=sql)
-            val.debug()
-            print('-----------------------华丽分割----------------------------------')
+#             val.debug()
+# #             print('-----------------------华丽分割----------------------------------')
             query = Query(val)
-
+# 
             print(json.dumps(query.dsl(),indent=4))
                 
     else: 

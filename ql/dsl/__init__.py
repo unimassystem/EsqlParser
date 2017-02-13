@@ -40,3 +40,31 @@ def parse_table_name(tree: Node):
     return (_index,_type)
 
 
+def parse_kv(tree: Node):
+    right=None
+    left=None
+    if tree.get_type() == TK.TOK_KEY_VALUE:
+        left = parse_value(tree.get_child(0).get_child(0))
+        if tree.get_child(1).get_child(0).get_type() in (TK.TOK_DICT,TK.TOK_LIST):
+            right = parse_object(tree.get_child(1).get_child(0))
+        else:
+            right = parse_value(tree.get_child(1).get_child(0))
+    else:
+        pass
+    return {left:right}
+
+
+def parse_object(tree: Node):
+    retval = None
+    if tree.get_type() == TK.TOK_DICT:
+        retval = {}
+        for element in tree.get_children():
+            retval.update(parse_kv(element))
+    if tree.get_type() == TK.TOK_LIST:
+        retval = []
+        for element in tree.get_children():
+            if element.get_type() in (TK.TOK_DICT,TK.TOK_LIST):
+                retval.append(parse_object(element))
+            else:
+                retval.append(parse_value(element))
+    return retval

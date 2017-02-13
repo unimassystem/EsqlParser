@@ -139,7 +139,6 @@ class QueryBody(object):
 
     def dsl(self):
         ret = {}
-        
         if self.combine  == 'and':
             self.combine = 'must'
         if self.combine  == 'or':

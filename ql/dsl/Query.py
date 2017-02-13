@@ -8,7 +8,7 @@ from ql.parse.ASTNode import Node
 from ql.parse.parser import TK
 from ql.dsl.QueryBody import QueryBody
 from ql.dsl import parse_table_name,parse_value,parse_right_values
-
+from ql.dsl.Aggregation import AggBuckets
 
 
 class FunctionXpr(object):
@@ -83,8 +83,9 @@ class Query(object):
     
     __slots__ = ('_index','_type','query_body','_from','_size','sorts','selexpr','groupby')
     def __init__(self,tree: Node):
+        
+        #do query
         for element in tree.get_children():
-                        
             if element.get_type() == TK.TOK_FROM:
                 (self._index,self._type) = parse_tok_from(element.get_child(0))
                 
@@ -99,11 +100,23 @@ class Query(object):
                 
             if element.get_type() == TK.TOK_ORDERBY:
                 self.sorts = parse_tok_sorts(element)
+        
+        #do aggregations
+        for element in tree.get_children():
+            if element.get_type() == TK.TOK_GROUPBY:
+                agg_size = -1
+                print(hasattr(self, '_size'))
+                if hasattr(self, '_size'):
+                    agg_size = self._size
+                print(agg_size)
+                self.groupby = AggBuckets(element,agg_size)
 
     def dsl(self):
-        dsl_body = {'query':{}}
+        dsl_body = {}
         if hasattr(self, 'query_body'):
             dsl_body['query'] = self.query_body.dsl()
+        else:
+            dsl_body['query'] = {'match_all':{}}
         if hasattr(self, '_from'):
             dsl_body['from'] = self._from
         if hasattr(self, '_size'):
@@ -111,8 +124,10 @@ class Query(object):
         if hasattr(self, 'sorts'):
             dsl_body['sort'] = self.sorts
         if hasattr(self, 'selexpr'):
-            dsl_body['_source'] = get_source(self.selexpr)   
-            
+            dsl_body['_source'] = get_source(self.selexpr)
+        if hasattr(self, 'groupby'):
+            dsl_body.update((self.groupby.dsl(self.selexpr)))
+            dsl_body['size'] = 0
         return dsl_body
     
     
