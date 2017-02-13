@@ -190,7 +190,9 @@ Console:
 
 
 
-	python -m ql.utest  "select * from my_table.my_index group by date_histogram(timestamp,{interval='12h'});"
+	python -m ql.utest  "select count(*) as c,sum(age) as total 
+	from my_table.my_index 
+	group by date_histogram(timestamp,{interval='12h'});"
 	
 	(TOK_QUERY
 		(TOK_SELECT
