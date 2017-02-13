@@ -105,10 +105,8 @@ class Query(object):
         for element in tree.get_children():
             if element.get_type() == TK.TOK_GROUPBY:
                 agg_size = -1
-                print(hasattr(self, '_size'))
                 if hasattr(self, '_size'):
                     agg_size = self._size
-                print(agg_size)
                 self.groupby = AggBuckets(element,agg_size)
 
     def dsl(self):
