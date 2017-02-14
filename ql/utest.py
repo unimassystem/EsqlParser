@@ -42,16 +42,21 @@ if __name__ == "__main__":
 #          
 #        '''select strcat(a,b),c.raw from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) and length(a.raw) > 10 and strcat(f.raw,b) limit 0,10 order by a asc,b,c desc;''',
 #        '''select * from my_index where a = hello;''',
-        '''select * from my_index where city is not null and city = '\\'my_hello\\'hello'  and city between 3717 and 3718 order by city group by 
-        data_range(a,{format='MM-yyyy'},{ranges=[{to = 'now-10M/M' },{from =  'now-10M/M'}]}),b limit 1000;''',
+#         '''select * from my_index where city is not null and city = '\\'my_hello\\'hello'  and city between 3717 and 3718 order by city group by 
+#         data_range(a,{format='MM-yyyy'},{ranges=[{to = 'now-10M/M' },{from =  'now-10M/M'}]}),b limit 1000;''',
         
-        '''select * from my_index group by a,_type;''',
+#        '''select * from my_index group by date_range(timestamp,{ranges=[{'to'='now+10M'},{'from'='now'}]});''',
+      
+#        '''select * from my_index group by date_range(timestamp,'{"ranges":[{"to":"now+10M"},{"from":"now"}]}');''',
+#        '''select * from my_index group by date_range({field=timestamp,'ranges'=[{'to'='now+10M'},{'from'='now'}]});''',
 
-#   
+        
+  
+        '''select * from  my_index where age between 20 and 30 and geo_distance({distance='200km',pin='30.311865,120.258854'});''',
 #          '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
 #   
 #   
-#         '''insert into my_index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''',
+#         '''insert into my_index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
 #   
 #         '''bulk into my_index(name,age,address,message) values 
 #             [('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),

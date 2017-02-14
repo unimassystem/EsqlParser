@@ -4,7 +4,7 @@ Created on Jan 13, 2017
 @author: qs
 '''
 
-from ql.dsl import parse_left_values,parse_right_values,parse_value
+from ql.dsl import parse_left_values,parse_right_values,parse_value,parse_object
 from ql.parse.ASTNode import Node
 from ql.parse.parser import TK
 
@@ -42,7 +42,8 @@ def wildcard_query(left_val,right_val):
 
 
 
-def between_query(parms):
+def between_query(fun_parms):
+    parms = parse_right_values(fun_parms)
     return {
         'range': {
             parms[0]:{
@@ -53,16 +54,25 @@ def between_query(parms):
     }  
 
 
-def query_missing(left_val):
+def query_missing(fun_parms):
+    parms = parse_right_values(fun_parms)
     return {
         'constant_score': {
             'filter': {
                 'missing': { 
-                    'field': left_val[0]
+                    'field': parms[0]
                 }
             }
         }
     }
+
+def other_functions(name,parms):
+    retval={name:{}}
+    for e in parms:
+        if e.get_type() == TK.TOK_DICT:
+            retval[name].update(parse_object(e))
+    return retval
+
 
 
 
@@ -71,6 +81,8 @@ def function_expression_dsl(name, parms):
         return between_query(parms)
     if name.lower() == 'isnull':
         return query_missing(parms)
+    else:
+        return other_functions(name,parms)
     
 
 
@@ -84,12 +96,11 @@ def compare_expression_dsl(compare,left_val,right_val):
     
 
     
-    
 class FunctionExpression(object):
     __slots__ = ('function_name','function_parms')
     def __init__(self,tree: Node):
         self.function_name = tree.get_value()
-        self.function_parms = parse_right_values(tree.get_children())
+        self.function_parms = tree.get_children()
     def dsl(self):
         return function_expression_dsl(self.function_name,self.function_parms)
 

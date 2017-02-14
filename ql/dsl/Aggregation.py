@@ -9,15 +9,14 @@ from ql.parse.parser import TK
 from ql.dsl import parse_object,parse_value
 from ql.dsl import Query
 
-
-
 def bucket_function(tree: Node,_size):
     bucket = {}
     bucket[tree.get_value()] = {}
     field = parse_value(tree.get_child(0))
-    bucket[tree.get_value()]['field'] = field
-    for i in range(1,tree.get_children_count()):
-        bucket[tree.get_value()].update(parse_object(tree.get_child(i)))
+#     bucket[tree.get_value()]['field'] = field
+    for i in range(0,tree.get_children_count()):
+        if tree.get_child(i).get_type() == TK.TOK_DICT:
+            bucket[tree.get_value()].update(parse_object(tree.get_child(i)))
     if _size != -1:
         bucket[tree.get_value()]['size'] = _size
     aggs = {"aggs":{}}
