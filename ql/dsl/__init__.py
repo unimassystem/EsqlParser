@@ -26,7 +26,10 @@ def parse_left_values(tree: Node) -> list:
 def parse_right_values(tree: Node):
     retval = []
     for e in tree:
-        retval.append(parse_value(e))
+        if e.get_type() in (TK.TOK_VALUE,TK.TOK_DOT):
+            retval.append(parse_value(e))
+        else:
+            retval.append(parse_object(e))
     return retval
 
 

@@ -12,14 +12,13 @@ from ql.dsl import Query
 def bucket_function(tree: Node,_size):
     bucket = {}
     bucket[tree.get_value()] = {}
-    field = parse_value(tree.get_child(0))
-#     bucket[tree.get_value()]['field'] = field
     for i in range(0,tree.get_children_count()):
         if tree.get_child(i).get_type() == TK.TOK_DICT:
             bucket[tree.get_value()].update(parse_object(tree.get_child(i)))
     if _size != -1:
         bucket[tree.get_value()]['size'] = _size
     aggs = {"aggs":{}}
+    field=bucket[tree.get_value()]['field']
     aggs['aggs'][field] = bucket
     return (field,aggs)
 
@@ -51,12 +50,18 @@ def metrics_functions(selexpr):
     if hasattr(selexpr,'alias'):
         alias = selexpr.alias
     else:
-        alias = 'count'
+        alias = 'the_' + selexpr.selexpr.function_name
     metric = {}
     if selexpr.selexpr.function_name == 'count':
         metric['value_count'] = {}
     else:
-        metric[selexpr.selexpr.function_name] = {'field':selexpr.selexpr.function_parms[0]}
+        if selexpr.selexpr.function_name.lower() in ('avg','min','max','sum','cardinality','stats','extended_stats'):
+            metric[selexpr.selexpr.function_name] = {'field':selexpr.selexpr.function_parms[0]}
+        else:
+            metric[selexpr.selexpr.function_name] = {}
+            for parm in selexpr.selexpr.function_parms:
+                if type(parm) == dict:
+                    metric[selexpr.selexpr.function_name].update(parm)
     return {alias:metric}
 
 

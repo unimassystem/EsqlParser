@@ -68,6 +68,10 @@ def t_WORD(t):
 
 def t_NUMBER(t):
     r'(\d+(\.\d*)?|\.\d+)([eE][-+]? \d+)?'
+    if '.' in t.value:
+        t.value = float(t.value)
+    else:
+        t.value = int(t.value)
     return t
 
 
@@ -83,7 +87,6 @@ def t_DQUOTE_STRING(t):
 
 
 def t_error(t):
-    print(t.value)
     raise Exception("Illegal character '%s'", t.value[0])
     t.lexer.skip(1)
     

@@ -24,6 +24,7 @@ if __name__ == "__main__":
      
     if len(sys.argv) < 2:
         sqls = [
+            
 #         '''create table my_tb (
 #             a text,b integer, 
 #             c object as (
@@ -51,8 +52,9 @@ if __name__ == "__main__":
 #        '''select * from my_index group by date_range({field=timestamp,'ranges'=[{'to'='now+10M'},{'from'='now'}]});''',
 
         
-  
-        '''select * from  my_index where age between 20 and 30 and geo_distance({distance='200km',pin='30.311865,120.258854'});''',
+        '''select sum(a) as tt from  my_index group by date_histogram({field=timestamp},{interval=day});''',
+        '''select sum(a) as tt,moving_avg({buckets_path=tt,window=30.00,model=simple}) as the_move  from  my_index group by date_histogram({field=timestamp},{interval=day});''',
+        '''select sum(a) as tt,derivative({buckets_path=tt}) as the_derivative  from  my_index group by date_histogram({field=timestamp},{interval=day});''',
 #          '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
 #   
 #   
