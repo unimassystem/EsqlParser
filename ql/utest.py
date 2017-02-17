@@ -53,8 +53,11 @@ if __name__ == "__main__":
 
         
         '''select sum(a) as tt from  my_index group by date_histogram({field=timestamp},{interval=day});''',
-        '''select sum(a) as tt,moving_avg({buckets_path=tt,window=30.00,model=simple}) as the_move  from  my_index group by date_histogram({field=timestamp},{interval=day});''',
-        '''select sum(a) as tt,derivative({buckets_path=tt}) as the_derivative  from  my_index group by date_histogram({field=timestamp},{interval=day});''',
+        
+        '''select sum(a) as tt,moving_avg({buckets_path=tt,window=30,model=simple}) as the_move  from  my_index group by date_histogram({field=timestamp},{interval=day});''',
+        
+        '''select sum(a) as tt,derivative({buckets_path=tt}) as the_derivative  from  my_index group by date_histogram({field=timestamp},{from=day});''',
+        
 #          '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
 #   
 #   
