@@ -22,5 +22,6 @@ def parse(sql):
     ast = __parser.parse(input=sql, lexer=__lexer.clone(), debug=__debug)
     if not ast:
         return None
+    ast.debug()
     query = Query(ast)
     return query.dsl()
