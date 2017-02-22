@@ -23,5 +23,4 @@ def parse(sql):
     if not ast:
         return None
     ast.debug()
-    query = Query(ast)
-    return query.dsl()
+    return Query(ast)
