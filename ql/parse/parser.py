@@ -434,6 +434,10 @@ def p_TOK_FROM(p):
     '''TOK_FROM : TOK_TABLE_NAME'''
     p[0] = ASTNode.Node(TK.TOK_FROM,None,[p[1]])
 
+def p_TOK_FROM_WITH_ROUTING(p):
+    '''TOK_FROM : TOK_TABLE_NAME "@" TOK_VALUE'''
+    p[0] = ASTNode.Node(TK.TOK_FROM,None,[p[1],p[3]])
+    
     
 def p_TOK_WHRER(p):
     '''TOK_WHERE : EXPRESSION_EXPR'''

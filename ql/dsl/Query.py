@@ -81,13 +81,15 @@ def get_source(selexprs):
 
 class Query(object):
     
-    __slots__ = ('_index','_type','query_body','_from','_size','sorts','selexpr','groupby')
+    __slots__ = ('_index','_type','route','query_body','_from','_size','sorts','selexpr','groupby')
     def __init__(self,tree: Node):
         
         #do query
         for element in tree.get_children():
             if element.get_type() == TK.TOK_FROM:
                 (self._index,self._type) = parse_tok_from(element.get_child(0))
+                if element.get_children_count() == 2:
+                    self.route = parse_value(element.get_child(1))
                 
             if element.get_type() == TK.TOK_SELECT:
                 self.selexpr = parse_tok_selexpr(element)
@@ -126,6 +128,8 @@ class Query(object):
         if hasattr(self, 'groupby'):
             dsl_body.update((self.groupby.dsl(self.selexpr)))
             dsl_body['size'] = 0
+        if hasattr(self, 'route'):
+            dsl_body['route'] = self.route
         return dsl_body
     
     

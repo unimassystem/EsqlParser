@@ -52,11 +52,11 @@ if __name__ == "__main__":
 #        '''select * from my_index group by date_range({field=timestamp,'ranges'=[{'to'='now+10M'},{'from'='now'}]});''',
 
         
-        '''select sum(a) as tt from  my_index group by date_histogram({field=timestamp},{interval=day});''',
+        '''select sum(a) as tt from  my_index@beijing group by date_histogram({field=timestamp},{interval=day});''',
         
-        '''select sum(a) as tt,moving_avg({buckets_path=tt,window=30,model=simple}) as the_move  from  my_index group by date_histogram({field=timestamp},{interval=day});''',
+#        '''select sum(a) as tt,moving_avg({buckets_path=tt,window=30,model=simple}) as the_move  from  my_index group by date_histogram({field=timestamp},{interval=day});''',
         
-        '''select sum(a) as tt,derivative({buckets_path=tt}) as the_derivative  from  my_index group by date_histogram({field=timestamp},{from=day});''',
+#        '''select sum(a) as tt,derivative({buckets_path=tt}) as the_derivative  from  my_index group by date_histogram({field=timestamp},{from=day});''',
         
 #          '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
 #   
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         for sql in sqls:
                 
             val = parser.parse(lexer=lexer.clone(),debug=False,input=sql)
-#             val.debug()
+            val.debug()
 # #             print('-----------------------华丽分割----------------------------------')
             query = Query(val)
 # 
