@@ -20,5 +20,7 @@ def init(optimize, debug):
 
 def parse(sql):
     ast = __parser.parse(input=sql, lexer=__lexer.clone(), debug=__debug)
-    query = Query(ast)
-    return query.dsl()
+    if not ast:
+        return None
+    ast.debug()
+    return Query(ast)
