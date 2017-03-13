@@ -12,16 +12,48 @@ from ql.parse import lexer
 from ql.parse import parser
 from ply.lex import  lex
 from ply.yacc import yacc
-import sys
+
+
+
+
 from ql.dsl.Query import Query
+from ql.dsl.Response import response
+import sys
 import json
+
+
+
+def exec_stmt(stmt):
+    
+    my_lexer=lex(module=lexer,optimize=True,debug=True)
+       
+    my_parser=yacc(debug=True,module=parser)
+    
+    val = my_parser.parse(lexer=my_lexer.clone(),debug=False,input=sql)
+    
+    query = Query(val)
+            
+    from elasticsearch import Elasticsearch
+    
+    es = Elasticsearch([{'host':"10.68.23.81","port":9201}])
+    
+    print(json.dumps(query.dsl()))
+    
+    print(query._index,query._type)
+    
+    res = es.search(index=query._index, doc_type = query._type, body=query.dsl(), request_timeout=100)
+    
+    stmt_res = response(res)
+    
+    print(json.dumps(stmt_res,indent=4))
+
+
+
 
 if __name__ == "__main__":
     
-    lexer=lex(module=lexer,optimize=True,debug=True)
-       
-    parser=yacc(debug=True,module=parser)
-     
+
+
     if len(sys.argv) < 2:
         sqls = [
             
@@ -41,7 +73,9 @@ if __name__ == "__main__":
 #         );''',
 #          
 #          
-#        '''select strcat(a,b),c.raw from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) and length(a.raw) > 10 and strcat(f.raw,b) limit 0,10 order by a asc,b,c desc;''',
+#        '''select * from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) limit 0,10 order by a asc,b,c desc;''',
+        
+        '''select count(*) as c from my_index02 group by date_histogram({field=ts,interval=day});''',
 #        '''select * from my_index where a = hello;''',
 #         '''select * from my_index where city is not null and city = '\\'my_hello\\'hello'  and city between 3717 and 3718 order by city group by 
 #         data_range(a,{format='MM-yyyy'},{ranges=[{to = 'now-10M/M' },{from =  'now-10M/M'}]}),b limit 1000;''',
@@ -52,7 +86,7 @@ if __name__ == "__main__":
 #        '''select * from my_index group by date_range({field=timestamp,'ranges'=[{'to'='now+10M'},{'from'='now'}]});''',
 
         
-        '''select sum(a) as tt from  my_index@beijing group by date_histogram({field=timestamp},{interval=day});''',
+#        '''select sum(a) as tt from  my_index@beijing group by date_histogram({field=timestamp},{interval=day});''',
         
 #        '''select sum(a) as tt,moving_avg({buckets_path=tt,window=30,model=simple}) as the_move  from  my_index group by date_histogram({field=timestamp},{interval=day});''',
         
@@ -91,17 +125,10 @@ if __name__ == "__main__":
         ]
 
         for sql in sqls:
-                
-            val = parser.parse(lexer=lexer.clone(),debug=False,input=sql)
-            val.debug()
-# #             print('-----------------------华丽分割----------------------------------')
-            query = Query(val)
-# 
-            print(json.dumps(query.dsl(),indent=4))
+            exec_stmt(sql)
                 
     else: 
-        val = parser.parse(lexer=lexer.clone(),debug=False,input=sys.argv[1])
-        val.debug()
-        print('-----------------------华丽分割----------------------------------')
-        query = Query(val)
-        print(json.dumps(query.dsl(),indent=4))
+        sql = sys.argv[1]
+        exec_stmt(sql)
+        
+        

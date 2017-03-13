@@ -228,7 +228,14 @@ def p_TOK_VALUE(p):
     | "*"'''
     p[0] = ASTNode.Node(TK.TOK_VALUE,p[1],None)
  
-       
+
+
+def p_TOK_WILDCARD_VALUE(p):
+    '''TOK_VALUE : WORD "*"'''
+    p[0] = ASTNode.Node(TK.TOK_VALUE,p[1] + p[2],None)
+    
+    
+           
 '''=======================================operator define=============================================='''
 
  
@@ -292,7 +299,7 @@ def p_TOK_FUNCTION(p):
        
 def p_TOK_BEWTEEN(p):
     '''TOK_BEWTEEN : VALUE_EXPR BETWEEN RIGHT_VALUE_EXPR AND RIGHT_VALUE_EXPR'''
-    p[0] = ASTNode.Node(TK.TOK_FUNCTION,p[2],[p[1],(p[3]),p[5]])
+    p[0] = ASTNode.Node(TK.TOK_FUNCTION,p[2],[p[1],p[3],p[5]])
 
 
 def p_TOK_ISNULL(p):

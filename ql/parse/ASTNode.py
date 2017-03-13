@@ -41,7 +41,10 @@ class Node(object):
             tab += '\t'
         print( tab + '('+ self.get_type().name)
         if self.value != None:
-            print( tab + '\t'+ self.get_value())
+            value = self.get_value()
+            if type(value) != str:
+                value = str(value)
+            print( tab + '\t'+ value)
         if(self.children != None):
             depth += 1
             for node in self.get_children():

@@ -50,10 +50,15 @@ def metrics_functions(selexpr):
     if hasattr(selexpr,'alias'):
         alias = selexpr.alias
     else:
-        alias = 'the_' + selexpr.selexpr.function_name
+        alias = '_the_' + selexpr.selexpr.function_name
     metric = {}
     if selexpr.selexpr.function_name == 'count':
         metric['value_count'] = {}
+        the_filed = selexpr.selexpr.function_parms[0] 
+        if the_filed == '*':
+            the_filed = '_index'
+        metric['value_count'] = {'field':the_filed}
+       
     else:
         if selexpr.selexpr.function_name.lower() in ('avg','min','max','sum','cardinality','stats','extended_stats'):
             metric[selexpr.selexpr.function_name] = {'field':selexpr.selexpr.function_parms[0]}

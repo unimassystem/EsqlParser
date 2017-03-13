@@ -9,7 +9,7 @@ from ql.parse.parser import TK
 from ql.dsl.QueryBody import QueryBody
 from ql.dsl import parse_table_name,parse_value,parse_right_values
 from ql.dsl.Aggregation import AggBuckets
-
+from ql.dsl.Aggregation import get_metrics
 
 class FunctionXpr(object):
     __slots__ = ('function_name','function_parms')
@@ -123,10 +123,17 @@ class Query(object):
             dsl_body['size'] = self._size
         if hasattr(self, 'sorts'):
             dsl_body['sort'] = self.sorts
+            
+        metrics = None
         if hasattr(self, 'selexpr'):
             dsl_body['_source'] = get_source(self.selexpr)
+            metrics = get_metrics(self.selexpr)
+            
         if hasattr(self, 'groupby'):
             dsl_body.update((self.groupby.dsl(self.selexpr)))
+            dsl_body['size'] = 0
+        elif metrics != None:
+            dsl_body['aggs'] = metrics
             dsl_body['size'] = 0
         if hasattr(self, 'route'):
             dsl_body['route'] = self.route
