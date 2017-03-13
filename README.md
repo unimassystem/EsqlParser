@@ -290,7 +290,26 @@ Console:
 	
 	
 	python -m ql.utest "select count(*) as c,moving_avg({buckets_path=c,window=30,model=simple}) from my_index02 group by date_histogram({field=ts,interval=day});"
-	
+		
+	{
+	    "cols": [
+	        "ts",
+	        "c",
+	        "_the_moving_avg"
+	    ],
+	    "rows": [
+	        [
+	            "2017-03-12T00:00:00.000Z",
+	            1,
+	            null
+	        ],
+	        [
+	            "2017-03-13T00:00:00.000Z",
+	            2,
+	            1.0
+	        ]
+	    ]
+	}
 
 
 
