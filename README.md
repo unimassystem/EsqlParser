@@ -286,6 +286,12 @@ Console:
 
 
 
+	-----------------------华丽分割----------------------------------
+	
+	
+	python -m ql.utest "select count(*) as c,moving_avg({buckets_path=c,window=30,model=simple}) from my_index02 group by date_histogram({field=ts,interval=day});"
+	
+
 
 
   

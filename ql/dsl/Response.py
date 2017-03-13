@@ -51,7 +51,8 @@ def parse_aggs_cols(aggs,bks,mts):
             bks.append(k)
             buckets = aggs[k]['buckets']
             if len(buckets) > 0:
-                parse_aggs_cols(buckets[0],bks,mts)
+                l = len(buckets) - 1
+                parse_aggs_cols(buckets[l],bks,mts)
             return
         elif 'value' in aggs[k].keys():
             mts.append(k)

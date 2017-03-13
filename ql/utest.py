@@ -37,11 +37,9 @@ def exec_stmt(stmt):
     
     es = Elasticsearch([{'host':"10.68.23.81","port":9201}])
     
-    print(json.dumps(query.dsl()))
-    
-    print(query._index,query._type)
-    
     res = es.search(index=query._index, doc_type = query._type, body=query.dsl(), request_timeout=100)
+    
+#     print(json.dumps(res,indent=4))
     
     stmt_res = response(res)
     
@@ -75,7 +73,7 @@ if __name__ == "__main__":
 #          
 #        '''select * from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) limit 0,10 order by a asc,b,c desc;''',
         
-        '''select count(*) as c from my_index02 group by date_histogram({field=ts,interval=day});''',
+        '''select count(*) as c,moving_avg({buckets_path=c,window=30,model=simple}) from my_index02 group by date_histogram({field=ts,interval=day});''',
 #        '''select * from my_index where a = hello;''',
 #         '''select * from my_index where city is not null and city = '\\'my_hello\\'hello'  and city between 3717 and 3718 order by city group by 
 #         data_range(a,{format='MM-yyyy'},{ranges=[{to = 'now-10M/M' },{from =  'now-10M/M'}]}),b limit 1000;''',
