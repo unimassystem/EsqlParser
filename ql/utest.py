@@ -76,7 +76,7 @@ if __name__ == "__main__":
 #          
 #        '''select * from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) limit 0,10 order by a asc,b,c desc;''',
 #         '''select * from my_index02;''',       
-        '''select count(*) as c,count(*) as cc ,moving_avg({buckets_path=c,window=30,model=simple}) from my_index02 group by name,date_histogram({field=ts,interval='1h'});''',
+        '''select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  from my_index02 group by name,date_histogram({field=ts,interval='1h'});''',
 #        '''select * from my_index where a = hello;''',
 #         '''select * from my_index where city is not null and city = '\\'my_hello\\'hello'  and city between 3717 and 3718 order by city group by 
 #         data_range(a,{format='MM-yyyy'},{ranges=[{to = 'now-10M/M' },{from =  'now-10M/M'}]}),b limit 1000;''',

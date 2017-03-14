@@ -45,12 +45,12 @@ def bucket(tree: Node,_size):
         return bucket_field(tree,_size)
 
 
-def metrics_functions(selexpr):
+def metrics_functions(selexpr,idx):
     alias = ''
     if hasattr(selexpr,'alias'):
         alias = selexpr.alias
     else:
-        alias = '_the_' + selexpr.selexpr.function_name
+        alias = '_' + str(idx) + '_'+ selexpr.selexpr.function_name
     metric = {}
     if selexpr.selexpr.function_name == 'count':
         metric['value_count'] = {}
@@ -73,9 +73,11 @@ def metrics_functions(selexpr):
 
 def get_metrics(selexprs):
     retval = {}
+    idx = 0
     for e in selexprs:
         if type(e.selexpr) == Query.FunctionXpr:
-            retval.update(metrics_functions(e))
+            retval.update(metrics_functions(e,idx))
+            idx = idx + 1
     return retval
 
 
