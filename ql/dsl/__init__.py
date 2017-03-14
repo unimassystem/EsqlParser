@@ -4,6 +4,13 @@ from ql.parse.ASTNode import Node
 from ql.parse.parser import TK
 
 
+def parse_tok_table_name(tree : Node):
+    if tree.get_type() == TK.TOK_TABLE_NAME:
+        return  parse_table_name(tree.get_child(0))
+    else:
+        pass
+
+
 def parse_value(tree: Node) -> str:
     if tree.get_type() == TK.TOK_DOT:
         retval = parse_value(tree.get_child(0))

@@ -18,12 +18,12 @@ from ply.yacc import yacc
 
 from ql.dsl.Query import Query
 from ql.dsl.Response import response
+from ql.dsl.Create import Create
 import sys
 import json
 
 
-
-def exec_stmt(stmt):
+def exec_stmt_create(stmt):
     
     my_lexer=lex(module=lexer,optimize=True,debug=True)
        
@@ -31,21 +31,56 @@ def exec_stmt(stmt):
     
     val = my_parser.parse(lexer=my_lexer.clone(),debug=False,input=sql)
     
-    query = Query(val)
-            
-    from elasticsearch import Elasticsearch
+    val.debug()
     
+    stmt = Create(val)
+    
+    stmt.dsl()
+              
+    from elasticsearch import Elasticsearch
+       
     es = Elasticsearch([{'host':"10.68.23.81","port":9201}])
     
+    res = es.indices.create(index=stmt._index,body = stmt._options,request_timeout=100,ignore= 400)
     
+    res = es.indices.put_mapping(index = stmt._index, doc_type = stmt._type, body = stmt.dsl(), request_timeout=100)
+    
+
+#       
+    print(json.dumps(res,indent=4))
+#       
+#     stmt_res = response(res)
+#       
+#     print(json.dumps(stmt_res,indent=4))
+
+
+
+
+def exec_stmt_query(stmt):
+    
+    my_lexer=lex(module=lexer,optimize=True,debug=True)
+       
+    my_parser=yacc(debug=True,module=parser)
+    
+    val = my_parser.parse(lexer=my_lexer.clone(),debug=False,input=sql)
+    
+    val.debug()
+    
+    query = Query(val)
+              
+    from elasticsearch import Elasticsearch
+      
+    es = Elasticsearch([{'host':"10.68.23.81","port":9201}])
+      
+      
     print(json.dumps(query.dsl()))
-    
+      
     res = es.search(index=query._index, doc_type = query._type, body=query.dsl(), request_timeout=100)
-    
+      
 #     print(json.dumps(res,indent=4))
-    
+      
     stmt_res = response(res)
-    
+      
     print(json.dumps(stmt_res,indent=4))
 
 
@@ -58,12 +93,13 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         sqls = [
             
-#         '''create table my_tb (
-#             a text,b integer, 
+#         '''create table my_tb.base (
+#             a text,
+#             b integer, 
 #             c object as (
-#                 raw string (index=yes,ppp=yes),
+#                 raw string (index=yes),
 #                 obj object as (
-#                     ddd string (index=yes,ppp=yes)
+#                     ddd string (index=yes)
 #                 )
 #             )
 #         ) with meta (
@@ -72,11 +108,30 @@ if __name__ == "__main__":
 #             index.number_of_shars=10,
 #             index.flush_inteval='10s'
 #         );''',
+        
+        '''create table my_tb.ccx (
+            a string (index=no),
+            c object as (
+                raw string (index=not_analyzed,doc_values=false),
+                obj object as (
+                    ddd string (index=no)
+                )
+            )
+        ) with meta (
+            _parent (type='people'),
+            _source (includes = [a,'*c'])
+        ) with option (
+            index.number_of_shards=10,
+            index.number_of_replicas = 1,
+            index.flush_inteval='10s'
+        );''',
 #          
 #          
 #        '''select * from test.info where a = hello or b between 10 and 20 and ( b = 20 or c = 10) limit 0,10 order by a asc,b,c desc;''',
-#         '''select * from my_index02;''',       
-        '''select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  from my_index02 group by name,date_histogram({field=ts,interval='1h'});''',
+#          '''select * from my_index02 limit 1;''',       
+#          '''select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  
+#          from my_index02 
+#          group by name,dd,date_histogram({field=ts,interval='1h'});''',
 #        '''select * from my_index where a = hello;''',
 #         '''select * from my_index where city is not null and city = '\\'my_hello\\'hello'  and city between 3717 and 3718 order by city group by 
 #         data_range(a,{format='MM-yyyy'},{ranges=[{to = 'now-10M/M' },{from =  'now-10M/M'}]}),b limit 1000;''',
@@ -126,10 +181,10 @@ if __name__ == "__main__":
         ]
 
         for sql in sqls:
-            exec_stmt(sql)
+            exec_stmt_create(sql)
                 
     else: 
         sql = sys.argv[1]
-        exec_stmt(sql)
+        exec_stmt_create(sql)
         
         

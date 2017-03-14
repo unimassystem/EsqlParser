@@ -118,11 +118,17 @@ def parse_aggregations(aggs):
 
 
 def response(res):
+    response = {}
     if 'aggregations' in res.keys():
-        return parse_aggregations(res['aggregations'])
-    if 'hits' in res.keys():
-        return parse_hits(res['hits'])
-    pass
+        response =  parse_aggregations(res['aggregations'])
+        response['total'] = len(response['rows'])
+    else:
+        if 'hits' in res.keys():
+            response = parse_hits(res['hits'])
+            response['total'] = res['hits']['total']
+    response['took'] = res['took']
+
+    return response
 
 
 

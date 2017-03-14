@@ -7,7 +7,7 @@ Created on Jan 17, 2017
 from ql.parse.ASTNode import Node
 from ql.parse.parser import TK
 from ql.dsl.QueryBody import QueryBody
-from ql.dsl import parse_table_name,parse_value,parse_right_values
+from ql.dsl import parse_value,parse_right_values,parse_tok_table_name
 from ql.dsl.Aggregation import AggBuckets
 from ql.dsl.Aggregation import get_metrics
 
@@ -27,15 +27,7 @@ class Selexpr(object):
             self.selexpr = parse_value(tree.get_child(0))
         if tree.get_children_count() == 2:
             self.alias = parse_value(tree.get_child(1))
-
-
-
-def parse_tok_from(tree : Node):
-    if tree.get_type() == TK.TOK_TABLE_NAME:
-        return  parse_table_name(tree.get_child(0))
-    else:
-        pass
-
+            
 
 def parse_tok_limit(tree : Node):
     _from = 0
@@ -87,7 +79,7 @@ class Query(object):
         #do query
         for element in tree.get_children():
             if element.get_type() == TK.TOK_FROM:
-                (self._index,self._type) = parse_tok_from(element.get_child(0))
+                (self._index,self._type) = parse_tok_table_name(element.get_child(0))
                 if element.get_children_count() == 2:
                     self.route = parse_value(element.get_child(1))
                 
@@ -110,6 +102,7 @@ class Query(object):
                 if hasattr(self, '_size'):
                     agg_size = self._size
                 self.groupby = AggBuckets(element,agg_size)
+
 
     def dsl(self):
         dsl_body = {}

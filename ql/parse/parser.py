@@ -233,8 +233,7 @@ def p_TOK_VALUE(p):
 def p_TOK_WILDCARD_VALUE(p):
     '''TOK_VALUE : WORD "*"'''
     p[0] = ASTNode.Node(TK.TOK_VALUE,p[1] + p[2],None)
-    
-    
+     
            
 '''=======================================operator define=============================================='''
 
