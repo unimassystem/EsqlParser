@@ -18,6 +18,7 @@ def parse_hit(cols,metas,hit):
             row.append(None)
     return row
     
+    
 def parse_hits_cols(hits):
     fields = {}
     for hit in hits:
@@ -25,6 +26,7 @@ def parse_hits_cols(hits):
             for key in hit['_source'].keys():
                 fields[key] = True
     return list(fields.keys())
+
 
 def parse_hits(hits):
     
@@ -42,8 +44,7 @@ def parse_hits(hits):
     return retval
 
 
-
-def parse_aggs_cols(aggs,bks,mts):
+def parse_aggs_cols(aggs,bks):
     for k in aggs.keys():
         if type(aggs[k]) != dict:
             continue
@@ -51,24 +52,11 @@ def parse_aggs_cols(aggs,bks,mts):
             bks.append(k)
             buckets = aggs[k]['buckets']
             if len(buckets) > 0:
-                l = len(buckets) - 1
-                parse_aggs_cols(buckets[l],bks,mts)
-            return
-        elif 'value' in aggs[k].keys():
-            mts.append(k)
+                parse_aggs_cols(buckets[0],bks)
     
 
 
-
-def parse_buckets(buck):
-    
-    
-    
-    
-    print(buck)
-
-
-def parse_aggs_rows(aggs,bks,mts,depth,rows,bucket_vals=[]):
+def parse_aggs_rows(aggs,bks,depth,rows,bucket_vals=[]):
     bucket_name = None
     if depth < len(bks):
         bucket_name = bks[depth]
@@ -80,37 +68,53 @@ def parse_aggs_rows(aggs,bks,mts,depth,rows,bucket_vals=[]):
                     bucket_vals.append(bucket['key'])
                 else:
                     bucket_vals.append(None)
-                parse_aggs_rows(bucket,bks,mts,depth + 1,rows,bucket_vals)
+                parse_aggs_rows(bucket,bks,depth + 1,rows,bucket_vals)
+            if len(bucket_vals) > 0:
+                bucket_vals.pop(len(bucket_vals) - 1) 
     else:
         row =  bucket_vals[:]
-        for mertic in mts:
-            if mertic in aggs:
-                if 'value' in aggs[mertic]:
-                    row.append(aggs[mertic]['value'])
-                else:
-                    row.append(None)
-            else:
-                row.append(None)
-        rows.append(row)
-        bucket_vals.clear()
+        mts = {}
+        for mertic in aggs.keys():
+            if type(aggs[mertic]) == dict and 'value' in aggs[mertic].keys():
+                mts[mertic] = aggs[mertic]['value']
+        rows.append((row,mts))
+        if len(bucket_vals) > 0:
+            bucket_vals.pop(len(bucket_vals) - 1) 
     pass
             
 
 
-def parse_aggregations(aggs):
-    bks = []
-    mts = []
-    depth = 0
-    rows = []
-    retval = {}
-        
-    parse_aggs_cols(aggs,bks,mts)
-    parse_aggs_rows(aggs,bks,mts,depth,rows)
-    retval['cols'] = bks + mts
-    retval['rows'] = rows
+def get_agg_rows(bks,rows):
+    
+    mertics = {}
+    for (bucket,mts) in rows:
+        for m in mts.keys():
+            mertics[m] = True
+    for m in mertics.keys():
+        bks.append(m)
+    retval = []
+    for (bucket,mts) in rows:
+        row = bucket 
+        for m in mertics.keys():
+            if m in mts.keys():
+                row.append(mts[m])
+            else:
+                row.append(None) 
+        retval.append(row)
     return retval
 
 
+def parse_aggregations(aggs):
+    bks = []
+    depth = 0
+    rows = []
+    retval = {}
+    parse_aggs_cols(aggs,bks)
+    parse_aggs_rows(aggs,bks,depth,rows)
+    row_sets = get_agg_rows(bks,rows)
+    retval['cols'] = bks
+    retval['rows'] = row_sets
+    return retval
 
 
 def response(res):
@@ -119,3 +123,6 @@ def response(res):
     if 'hits' in res.keys():
         return parse_hits(res['hits'])
     pass
+
+
+
