@@ -15,7 +15,7 @@ from ply.yacc import yacc
 from ql.parse.parser import TK
 
 
-from ql.dsl.Insert import Insert
+from ql.dsl.Insert import Insert,Bulk
 from ql.dsl.Query import Query
 from ql.dsl.Response import response
 from ql.dsl.Create import Create
@@ -60,14 +60,26 @@ def exec_query(stmt):
         val.debug()
         
         stmt = Insert(val)
-      
-        res = es.index(stmt._index, stmt._type, body = stmt.dsl())
+        
+        parms = stmt.metas
+        
+        res = es.index(index = stmt._index,doc_type =  stmt._type, body = stmt.dsl(),**parms)
         
         print(json.dumps(res,indent=4))
         
-
-
-
+        
+    else:
+        val.debug()
+        
+        stmt = Bulk(val)
+        
+        res = es.bulk(index = stmt._index,doc_type = stmt._type, body = stmt.dsl())
+        
+        print(json.dumps(res,indent=4))
+        
+        
+        
+        
 
 
 if __name__ == "__main__":
@@ -144,15 +156,15 @@ if __name__ == "__main__":
 #   
 #   
 
-        '''insert into my_index (name,age,address,message) values ('zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
+        '''insert into my_index (_id,_routing,name,age,address,message) values (200,200,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
         
         
         
         
 #   
-#         '''bulk into my_index(name,age,address,message) values 
-#             [('zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),
-#             ('zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002'])];''',
+        '''bulk into my_index_occ(_id,name,age,address,message) values 
+            (1,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),
+            (2,'zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''',
 #   
 #         '''update my_index set name = 'lisi' ,age = 30,address={address='shanghai',postCode='330010'} where _id = 330111111;''',
 #           

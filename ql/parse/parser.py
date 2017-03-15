@@ -550,11 +550,6 @@ def p_TOK_INSERT_ROW(p):
     p[0] = ASTNode.Node(TK.TOK_INSERT_ROW,None,p[2])  
 
     
-def p_TOK_BULK_ROWS(p):
-    '''TOK_BULK_ROWS : "[" INSERT_ROWS_EXPR "]" '''
-    p[0] = ASTNode.Node(TK.TOK_INSERT_ROWS,None,p[2])  
- 
- 
 def p_INSERT_ROWS_EXPR(p):
     '''INSERT_ROWS_EXPR : TOK_VALUE_ROW
     | TOK_VALUE_ROW COMMA TOK_VALUE_ROW
@@ -563,8 +558,11 @@ def p_INSERT_ROWS_EXPR(p):
 
  
 def p_TOK_BULK_INTO(p):
-    '''TOK_BULK_INTO : BULK INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_BULK_ROWS'''
-    p[0] = ASTNode.Node(TK.TOK_BULK_INTO,None,[p[3]] + [p[4]] + [p[6]])
+    '''TOK_BULK_INTO : BULK INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES INSERT_ROWS_EXPR'''
+    
+    rows = ASTNode.Node(TK.TOK_INSERT_ROWS,None,p[6])  
+    
+    p[0] = ASTNode.Node(TK.TOK_BULK_INTO,None,[p[3]] + [p[4]] + [rows])
     
 
 def p_TOK_UPDATE(p):
