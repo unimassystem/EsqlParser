@@ -143,8 +143,7 @@ if __name__ == "__main__":
 
     if len(sys.argv) < 2:
         sqls = [
-            
-        
+
         '''create table my_index03.ccx (
             name string (analyzer = ik),
             timestamp date,
@@ -181,11 +180,8 @@ if __name__ == "__main__":
          
         '''select count(*) from my_index02 group by date_range({field=ts,ranges=[{to='now-10M/M',from=now},{to='now',from='now-10M/M'}]});''',
        
- 
         '''insert into my_index (_id,_routing,name,age,address,message) values (200,200,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
          
-         
-     
         '''bulk into my_index_occ(_id,name,age,address,message) values 
             (1,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),
             (2,'zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''', 
@@ -197,24 +193,11 @@ if __name__ == "__main__":
            
         '''delete from my_index_occ where _id = 1;''',
         
-               
-        '''explain create table my_index03.ccx (
-            name string (analyzer = ik),
-            timestamp date,
-            age long
-        ) with option (
-            index.number_of_shards=10,
-            index.number_of_replicas = 1,
-            index.flush_inteval='10s'
-        );''',
-        
                        
         '''explain select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  
         from my_index02 
         group by name,date_histogram({field=ts,interval='1h'});''',
         
-                               
-        '''explain insert into my_index (_id,_routing,name,age,address,message) values ('200',200,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
         
         ]
 
