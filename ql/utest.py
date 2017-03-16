@@ -14,8 +14,10 @@ from ply.lex import  lex
 from ply.yacc import yacc
 from ql.parse.parser import TK
 
-
+from ql.dsl.Explain import Explain
 from ql.dsl.Insert import Insert,Bulk
+from ql.dsl.Update import Update,Upsert
+from ql.dsl.Delete import Delete
 from ql.dsl.Query import Query
 from ql.dsl.Response import response
 from ql.dsl.Create import Create
@@ -57,7 +59,7 @@ def exec_query(stmt):
         
     elif val.get_type() == TK.TOK_INSERT_INTO:
         
-        val.debug()
+#         val.debug()
         
         stmt = Insert(val)
         
@@ -67,15 +69,68 @@ def exec_query(stmt):
         
         print(json.dumps(res,indent=4))
         
+    elif val.get_type() == TK.TOK_BULK_INTO:
         
-    else:
-        val.debug()
+#         val.debug()
+        
         
         stmt = Bulk(val)
         
         res = es.bulk(index = stmt._index,doc_type = stmt._type, body = stmt.dsl())
         
         print(json.dumps(res,indent=4))
+        
+    
+    elif val.get_type() == TK.TOK_UPDATE:
+        
+        val.debug()
+        
+        stmt = Update(val)
+        
+        print(json.dumps(stmt.dsl(),indent=4))
+        
+        res = es.update(index = stmt._index, doc_type = stmt._type, body = stmt.dsl(), **stmt.conditions)
+        
+        
+        print(json.dumps(res,indent=4))
+    
+    
+    elif val.get_type() == TK.TOK_UPSERT_INTO:
+        
+        val.debug()
+        
+        stmt = Upsert(val)
+        
+        print(json.dumps(stmt.dsl(),indent=4))
+        
+        res = es.update(index = stmt._index, doc_type = stmt._type, body = stmt.dsl(), **stmt.conditions)
+        
+        
+        print(json.dumps(res,indent=4))
+    
+    
+    elif val.get_type() == TK.TOK_DELETE:
+        
+        val.debug()
+        
+        stmt = Delete(val)
+        
+        res = es.delete(index = stmt._index, doc_type = stmt._type, **stmt.conditions,ignore= 404)
+
+        print(json.dumps(res,indent=4))
+        
+        
+    elif val.get_type() == TK.TOK_EXPLAIN:
+            
+        stmt = Explain(val)
+        
+        print(stmt.curl_str)
+        print(json.dumps(stmt.dsl(),indent=4))
+    
+    else:
+        val.debug()
+        
+
         
         
         
@@ -89,21 +144,6 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         sqls = [
             
-#         '''create table my_tb.base (
-#             a text,
-#             b integer, 
-#             c object as (
-#                 raw string (index=yes),
-#                 obj object as (
-#                     ddd string (index=yes)
-#                 )
-#             )
-#         ) with meta (
-#             _parent (type='people')
-#         ) with option (
-#             index.number_of_shars=10,
-#             index.flush_inteval='10s'
-#         );''',
         
         '''create table my_index03.ccx (
             name string (analyzer = ik),
@@ -114,8 +154,8 @@ if __name__ == "__main__":
             index.number_of_replicas = 1,
             index.flush_inteval='10s'
         );''',
-        
-        
+         
+         
         '''create table my_tb.ccx (
             a string (index=no),
             c object as (
@@ -132,61 +172,50 @@ if __name__ == "__main__":
             index.number_of_replicas = 1,
             index.flush_inteval='10s'
         );''',
-  
+   
         '''select * from my_index limit 1,1;''', 
-        
+         
         '''select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  
         from my_index02 
         group by name,date_histogram({field=ts,interval='1h'});''',
-#        '''select * from my_index where a = hello;''',
-#         '''select * from my_index where city is not null and city = '\\'my_hello\\'hello'  and city between 3717 and 3718 order by city group by 
-#         data_range(a,{format='MM-yyyy'},{ranges=[{to = 'now-10M/M' },{from =  'now-10M/M'}]}),b limit 1000;''',
-        
+         
         '''select count(*) from my_index02 group by date_range({field=ts,ranges=[{to='now-10M/M',from=now},{to='now',from='now-10M/M'}]});''',
-      
-#        '''select * from my_index group by date_range({field=timestamp,'ranges'=[{'to'='now+10M'},{'from'='now'}]});''',
-
-        
-#        '''select sum(a) as tt from  my_index@beijing group by date_histogram({field=timestamp},{interval=day});''',
-
-        
-#        '''select sum(a) as tt,derivative({buckets_path=tt}) as the_derivative  from  my_index group by date_histogram({field=timestamp},{from=day});''',
-        
-#          '''select sum.a(id) as sum,a as b from test.info group by a,date_histogram(my_date,{interval='1d'},['test','ttt'],'hello world',10);''',
-#   
-#   
-
+       
+ 
         '''insert into my_index (_id,_routing,name,age,address,message) values (200,200,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
-        
-        
-        
-        
-#   
+         
+         
+     
         '''bulk into my_index_occ(_id,name,age,address,message) values 
             (1,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),
-            (2,'zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''',
-#   
-#         '''update my_index set name = 'lisi' ,age = 30,address={address='shanghai',postCode='330010'} where _id = 330111111;''',
-#           
-#         '''upsert into my_index (_id,name,age,address,message) values (330001,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''',
-#           
-#         '''delete from my_test.info where _id = 330111111;''',
-#         
-#         
-#         '''explain create table my_tb (
-#             a text,b integer, 
-#             c object as (
-#                 raw string (index=yes,ppp=yes),
-#                 obj object as (
-#                     ddd string (index=yes,ppp=yes)
-#                 )
-#             )
-#         ) with meta (
-#             _parent (type='people')
-#         ) with option (
-#             index.number_of_shars=10,
-#             index.flush_inteval='10s'
-#         );''',
+            (2,'zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''', 
+ 
+         
+        '''update my_index_occ set name = 'lisi' ,age = 30,address={address='shanghai',postCode='3300100009'} where _id = 1 ;''',
+           
+        '''upsert  my_index_occ set name1 = 'lisi' ,age1 = 30,address1={address='shanghai',postCode='3300100009'} where _id = 1;''',
+           
+        '''delete from my_index_occ where _id = 1;''',
+        
+               
+        '''explain create table my_index03.ccx (
+            name string (analyzer = ik),
+            timestamp date,
+            age long
+        ) with option (
+            index.number_of_shards=10,
+            index.number_of_replicas = 1,
+            index.flush_inteval='10s'
+        );''',
+        
+                       
+        '''explain select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  
+        from my_index02 
+        group by name,date_histogram({field=ts,interval='1h'});''',
+        
+                               
+        '''explain insert into my_index (_id,_routing,name,age,address,message) values ('200',200,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
+        
         ]
 
         for sql in sqls:

@@ -577,8 +577,8 @@ def p_TOK_SET_COLUMNS(p):
     
     
 def p_TOK_UPSERT_INTO(p):
-    '''TOK_UPSERT_INTO : UPSERT INTO TOK_TABLE_NAME TOK_INSERT_COLUMNS VALUES TOK_VALUE_ROW'''
-    p[0] = ASTNode.Node(TK.TOK_UPSERT_INTO,None,[p[3]] + [p[4]] + [p[6]])
+    '''TOK_UPSERT_INTO : UPSERT TOK_TABLE_NAME SET TOK_SET_COLUMNS_CLAUSE WHERE TOK_WHERE'''
+    p[0] = ASTNode.Node(TK.TOK_UPSERT_INTO,None,[p[2]] + [p[4]] + [p[6]])
     
     
 def p_TOK_DELETE(p):
