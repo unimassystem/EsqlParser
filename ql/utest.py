@@ -23,24 +23,28 @@ from ql.dsl.Response import response
 from ql.dsl.Create import Create
 import sys
 import json
-
+from elasticsearch import Elasticsearch
 
 
 
 def exec_query(stmt):
-    
+
     my_lexer=lex(module=lexer,optimize=True,debug=True)
        
     my_parser=yacc(debug=True,module=parser)
     
     val = my_parser.parse(lexer=my_lexer.clone(),debug=False,input=sql)
-    from elasticsearch import Elasticsearch
+
       
-    es = Elasticsearch([{'host':"10.68.23.81","port":9201}])
+    es = Elasticsearch([{'host':"10.68.23.81","port":9200}])
     if val.get_type() == TK.TOK_QUERY:
         
         query = Query(val)
-              
+        
+        print(query.dsl())
+        
+        print(query._index,query._type)
+        
         res = es.search(index=query._index, doc_type = query._type, body=query.dsl(), request_timeout=100)
       
         stmt_res = response(res)
@@ -142,60 +146,60 @@ if __name__ == "__main__":
     if len(sys.argv) < 2:
         sqls = [
 
-        '''create table my_index03.ccx (
-            name string (analyzer = ik),
-            timestamp date,
-            age long
-        ) with option (
-            index.number_of_shards=10,
-            index.number_of_replicas = 1,
-            index.flush_inteval='10s'
-        );''',
-         
-         
-        '''create table my_tb.ccx (
-            a string (index=no),
-            c object as (
-                raw string (index=not_analyzed,doc_values=false),
-                obj object as (
-                    ddd string (index=no)
-                )
-            )
-        ) with meta (
-            _parent (type='people'),
-            _source (includes = [a,'*c'])
-        ) with option (
-            index.number_of_shards=10,
-            index.number_of_replicas = 1,
-            index.flush_inteval='10s'
-        );''',
+#         '''create table my_index03.ccx (
+#             name string (analyzer = ik),
+#             timestamp date,
+#             age long
+#         ) with option (
+#             index.number_of_shards=10,
+#             index.number_of_replicas = 1,
+#             index.flush_inteval='10s'
+#         );''',
+#          
+#          
+#         '''create table my_tb.ccx (
+#             a string (index=no),
+#             c object as (
+#                 raw string (index=not_analyzed,doc_values=false),
+#                 obj object as (
+#                     ddd string (index=no)
+#                 )
+#             )
+#         ) with meta (
+#             _parent (type='people'),
+#             _source (includes = [a,'*c'])
+#         ) with option (
+#             index.number_of_shards=10,
+#             index.number_of_replicas = 1,
+#             index.flush_inteval='10s'
+#         );''',
    
-        '''select * from my_index limit 1,1;''', 
+        '''select * from my_index@beijing limit 1,1;''', 
          
-        '''select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  
-        from my_index02 
-        group by name,date_histogram({field=ts,interval='1h'});''',
-         
-        '''select count(*) from my_index02 group by date_range({field=ts,ranges=[{to='now-10M/M',from=now},{to='now',from='now-10M/M'}]});''',
-       
-        '''insert into my_index (_id,_routing,name,age,address,message) values (200,200,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
-         
-        '''bulk into my_index_occ(_id,name,age,address,message) values 
-            (1,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),
-            (2,'zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''', 
- 
-         
-        '''update my_index_occ set name = 'lisi' ,age = 30,address={address='shanghai',postCode='3300100009'} where _id = 1 ;''',
-           
-        '''upsert  my_index_occ set name1 = 'lisi' ,age1 = 30,address1={address='shanghai',postCode='3300100009'} where _id = 1;''',
-           
-        '''delete from my_index_occ where _id = 1;''',
-        
-                       
-        '''explain select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  
-        from my_index02 
-        group by name,date_histogram({field=ts,interval='1h'});''',
-        
+#         '''select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  
+#         from my_index02 
+#         group by name,date_histogram({field=ts,interval='1h'});''',
+#          
+#         '''select count(*) from my_index02 group by date_range({field=ts,ranges=[{to='now-10M/M',from=now},{to='now',from='now-10M/M'}]});''',
+#        
+#         '''insert into my_index (_id,_routing,name,age,address,message) values (200,200,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms001','sms002']);''',
+#          
+#         '''bulk into my_index_occ(_id,name,age,address,message) values 
+#             (1,'zhangsan',24,{address='zhejiang',postCode='330010'},['sms:001','sms:002']),
+#             (2,'zhangsan',25,{address='zhejiang',postCode='330010'},['sms:001','sms:002']);''', 
+#  
+#          
+#         '''update my_index_occ set name = 'lisi' ,age = 30,address={address='shanghai',postCode='3300100009'} where _id = 1 ;''',
+#            
+#         '''upsert  my_index_occ set name1 = 'lisi' ,age1 = 30,address1={address='shanghai',postCode='3300100009'} where _id = 1;''',
+#            
+#         '''delete from my_index_occ where _id = 1;''',
+#         
+#                        
+#         '''explain select count(*) as c,count(*) as cc ,sum(dd) as dd,moving_avg({buckets_path=c,window=30,model=simple}), moving_avg({buckets_path=dd,window=30,model=simple})  
+#         from my_index02 
+#         group by name,date_histogram({field=ts,interval='1h'});''',
+#         
         
         ]
 

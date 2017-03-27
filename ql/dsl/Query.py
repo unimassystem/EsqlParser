@@ -126,8 +126,6 @@ class Query(object):
         elif metrics != None and len(metrics) > 0:
             dsl_body['aggs'] = metrics
             dsl_body['size'] = 0
-        if hasattr(self, 'route'):
-            dsl_body['route'] = self.route
         return dsl_body
     
     
