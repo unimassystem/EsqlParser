@@ -2,7 +2,6 @@ from ply.lex import lex
 from ply.yacc import yacc
 
 from ql.parse import lexer, parser
-from ql.dsl.Query import Query
 
 __debug = False
 __lexer = None
@@ -20,7 +19,6 @@ def init(optimize, debug):
 
 def parse(sql):
     ast = __parser.parse(input=sql, lexer=__lexer.clone(), debug=__debug)
-    if not ast:
-        return None
-    ast.debug()
-    return Query(ast)
+    if ast:
+        ast.debug()
+    return ast
